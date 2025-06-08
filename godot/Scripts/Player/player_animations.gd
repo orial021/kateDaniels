@@ -52,6 +52,15 @@ func attack_idle() -> void:
 func jump() -> void:
 	set(jump_path, true)
 	
+func jump_start() -> void:
+	_state_machine.travel(ANIMS.JUMP_START)
+	
+func air_attack() -> void:
+	_state_machine.travel(ANIMS.AIR_ATTACK)
+	
+func jump_land() -> void:
+	_state_machine.travel(ANIMS.JUMP_LAND)
+	
 func state_machine() -> void:
 	match _state_machine.get_current_node():
 		ANIMS.CHEER:
@@ -59,8 +68,6 @@ func state_machine() -> void:
 		
 		ANIMS.IDLE:
 			current_animation_state = ANIMS.IDLE
-			#if player.velocity.y > 0:
-				#jump()
 			match player.is_unsheathed:
 				true:
 					if GLOBAL.get_axis().y > 0:
@@ -88,8 +95,6 @@ func state_machine() -> void:
 				run_left()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
-			#if player.velocity.y > 0:
-				#jump()
 			if not player.is_unsheathed:
 				walk()
 
@@ -105,8 +110,6 @@ func state_machine() -> void:
 					run_left()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
-			#if player.velocity.y > 0:
-				#jump()
 			
 		ANIMS.RUN_LEFT:
 			player.speed = 300
@@ -120,8 +123,6 @@ func state_machine() -> void:
 					run_right()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
-			#if player.velocity.y > 0:
-				#jump()
 			
 		ANIMS.WALK_BACK:
 			current_animation_state = ANIMS.WALK_BACK
@@ -134,8 +135,6 @@ func state_machine() -> void:
 				run_right()
 			if GLOBAL.get_axis().x < 0 or GLOBAL.get_axis().y > 0 and GLOBAL.get_axis().x < 0:
 				run_left()
-			#if player.velocity.y > 0:
-				#jump()
 				
 		ANIMS.WALK:
 			current_animation_state = ANIMS.WALK
@@ -144,8 +143,6 @@ func state_machine() -> void:
 				idle()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
-			#if player.velocity.y > 0:
-				#jump()
 			if player.is_unsheathed:
 				run()
 		
@@ -160,6 +157,11 @@ func state_machine() -> void:
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
 				
+		ANIMS.JUMP_START:
+			current_animation_state = ANIMS.JUMP_START
+			if player.velocity.y <= -5:
+				jump_land()
+			
 
 func _on_animation_tree_animation_finished(anim_name: StringName) -> void:
 	match anim_name:

@@ -2,7 +2,7 @@ extends CharacterBody3D
 class_name Player
 @onready var debug_panel: PanelContainer = $debugPanel
 @onready var animations: AnimationTree = $AnimationTree
-var current_attack: AttackData
+var current_attack: AttackData = AttackData.new()
 
 #region vars
 @onready var gui: CanvasLayer
@@ -10,6 +10,7 @@ var current_attack: AttackData
 @export var is_dead : bool = false
 @export var lives : int = 5
 @export var is_vulnerable : bool = true
+@export var jumping : bool = false
 var can_move : bool = true
 var is_unsheathed : bool = false
 var attack_mode : bool = true
@@ -33,6 +34,9 @@ func _physics_process(delta: float) -> void:
 		if not is_dead:
 			motion_ctrl(delta)
 			anim_ctrl()
+			if jumping:
+				jumping = false
+				velocity.y = JUMP_FORCE
 	move_and_slide()
 		
 func _input(event: InputEvent) -> void:
@@ -42,6 +46,7 @@ func _input(event: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if event.is_action_pressed("ui_jump"):
 		jump_ctrl(1.0)
+		
 	if event.is_action_pressed("ui_change_weapon"):
 		if is_unsheathed:
 			is_unsheathed = false
@@ -50,22 +55,29 @@ func _input(event: InputEvent) -> void:
 			is_unsheathed = true
 			speed = 300
 	if is_unsheathed:
-		if event.is_action_pressed("ui_shot")and last_attack == "":
-			last_attack = "first"
-			attack_mode = true
-			attack_on_time = true
-			$Settings/attackTimer.start()
-			$Settings/canAttackTimer.start()
-			animations.first_attack()
-		elif event.is_action_pressed("ui_shot") and last_attack == "first" and attack_on_time:
-			last_attack = "second"
-			$Settings/attackTimer.start()
-			$Settings/canAttackTimer.start()
-			animations.second_attack()
-		elif event.is_action_pressed("ui_shot") and last_attack == "second" and attack_on_time:
-			last_attack = "third"
-			animations.third_attack()
-		
+		if is_on_floor():
+			if event.is_action_pressed("ui_shot")and last_attack == "":
+				last_attack = current_attack.name.FIRST_ATTACK
+				attack_mode = true
+				attack_on_time = true
+				$Settings/attackTimer.start()
+				$Settings/canAttackTimer.start()
+				animations.first_attack()
+			elif event.is_action_pressed("ui_shot") and last_attack == current_attack.name.FIRST_ATTACK and attack_on_time:
+				last_attack = current_attack.name.SECOND_ATTACK
+				$Settings/attackTimer.start()
+				$Settings/canAttackTimer.start()
+				animations.second_attack()
+			elif event.is_action_pressed("ui_shot") and last_attack == current_attack.name.SECOND_ATTACK and attack_on_time:
+				last_attack = current_attack.name.THIRD_ATTACK
+				animations.third_attack()
+		else:
+			if event.is_action_pressed("ui_shot"):
+				attack_mode = true
+				$Settings/canAttackTimer.start()
+				last_attack = current_attack.name.AIR_ATTACK
+				animations.air_attack()
+				
 	
 func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -86,5 +98,4 @@ func anim_ctrl() ->void:
 	$"Rig/Skeleton3D/Back/2H_Sword".visible = !is_unsheathed
 			
 func jump_ctrl(power : float) -> void:
-	animations.jump()
-	velocity.y = JUMP_FORCE
+	animations.jump_start()

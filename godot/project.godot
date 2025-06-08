@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Manhathan"
+config/name="Kate Daniels"
 run/main_scene="uid://bconxdubumehp"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
@@ -80,6 +80,16 @@ ui_change_weapon={
 ]
 }
 
+[layer_names]
+
+3d_render/layer_1="Player"
+3d_render/layer_2="Enemy"
+3d_render/layer_3="Environment"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+occlusion_culling/use_occlusion_culling=true
