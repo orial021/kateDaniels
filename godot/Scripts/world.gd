@@ -5,8 +5,8 @@ extends Node3D
 
 func _ready() -> void:
 	env.environment.volumetric_fog_enabled = false
-	#await get_tree().create_timer(7).timeout
-	#toggle_wave()
+	await get_tree().create_timer(7).timeout
+	toggle_wave()
 	
 func toggle_wave():
 	GLOBAL.current_wave = GLOBAL.WaveType.MAGIC if GLOBAL.current_wave == GLOBAL.WaveType.TECH else GLOBAL.WaveType.TECH

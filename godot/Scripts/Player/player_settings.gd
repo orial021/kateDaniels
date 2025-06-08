@@ -3,6 +3,10 @@ extends Node
 @onready var player : Player = get_parent()
 @onready var animations: AnimationTree = $"../AnimationTree"
 var gui : CanvasLayer
+var stamina_regen_multipliers := [
+	1,
+	2
+]
 
 func _ready() -> void:
 	gui = player.gui
@@ -24,6 +28,7 @@ func _on_attack_mode_timer_timeout() -> void:
 
 func _on_sp_timer_timeout() -> void:
 	if GLOBAL.stamina < GLOBAL.max_stamina:
-		GLOBAL.stamina += GLOBAL.max_stamina/100
+		GLOBAL.stamina += GLOBAL.max_stamina/50 * stamina_regen_multipliers[GLOBAL.current_wave]
+		print(str(stamina_regen_multipliers[GLOBAL.current_wave]))
 	else:
 		$SPTimer.stop()
