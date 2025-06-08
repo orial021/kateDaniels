@@ -1,6 +1,44 @@
-[gd_scene load_steps=4 format=3 uid="uid://de3r7yeiilc51"]
+[gd_scene load_steps=9 format=3 uid="uid://de3r7yeiilc51"]
 
 [ext_resource type="Script" uid="uid://bb105sas15wt8" path="res://Scripts/Player/gui.gd" id="1_qyd3e"]
+
+[sub_resource type="Theme" id="Theme_qyd3e"]
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/constants/outline_size = 4
+Label/font_sizes/font_size = 24
+Label/fonts/font = null
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bm56d"]
+bg_color = Color(0.6, 0.6, 0.207843, 0.298039)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0.312728, 0.31261, 0.0885083, 0.635294)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n5m23"]
+bg_color = Color(0.6, 0.6, 0.6, 0.713726)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m6o0h"]
+bg_color = Color(1, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8kag3"]
+bg_color = Color(0, 0.623529, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="Gradient" id="Gradient_qyd3e"]
 offsets = PackedFloat32Array(0, 0.275862, 1)
@@ -23,6 +61,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+theme = SubResource("Theme_qyd3e")
 
 [node name="MarginContainer" type="MarginContainer" parent="Control"]
 layout_mode = 1
@@ -36,19 +75,98 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/MarginContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="Control/MarginContainer"]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bm56d")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/MarginContainer/PanelContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="Username" type="Label" parent="Control/MarginContainer/VBoxContainer"]
+[node name="Username" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 0
 text = "KATE"
 
-[node name="Health" type="Label" parent="Control/MarginContainer/VBoxContainer"]
+[node name="HPContainer" type="HBoxContainer" parent="Control/MarginContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 
+[node name="Label" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer/HPContainer"]
+layout_mode = 2
+text = "HP   "
+
+[node name="HPBar" type="ProgressBar" parent="Control/MarginContainer/PanelContainer/VBoxContainer/HPContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 25)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_n5m23")
+theme_override_styles/fill = SubResource("StyleBoxFlat_m6o0h")
+step = 1.0
+value = 99.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer/HPContainer/HPBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -46.0
+offset_top = -17.0
+offset_right = 46.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "100/100"
+
+[node name="SPContainer" type="HBoxContainer" parent="Control/MarginContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer/SPContainer"]
+layout_mode = 2
+text = "SP    "
+
+[node name="SPBar" type="ProgressBar" parent="Control/MarginContainer/PanelContainer/VBoxContainer/SPContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 25)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_n5m23")
+theme_override_styles/fill = SubResource("StyleBoxFlat_8kag3")
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="SPLabel" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer/SPContainer/SPBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -46.0
+offset_top = -17.0
+offset_right = 46.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "100/100"
+
+[node name="Wave" type="Label" parent="Control/MarginContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "WAVE:   TECH"
+
 [node name="attackTime" type="TextureRect" parent="Control"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -51,12 +51,17 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 		
 func _input(event: InputEvent) -> void:
+	handle_high_cognition(event)
 	handle_pause(event)
 	handle_weapon_togle(event)
 	handle_attack_input(event)
 	if event.is_action_pressed("ui_jump"):
 		jump_ctrl(1.0)
 				
+func handle_high_cognition(event:InputEvent) -> void:
+	if event.is_action_pressed("ui_cogn"):
+		GLOBAL.high_cognition = !GLOBAL.high_cognition
+		
 func handle_pause(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -106,27 +111,28 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 			$Settings/attackTimer.start(1.8)
 			animations.first_attack()
 			await get_tree().create_timer(0.8).timeout
-			apply_damage(attack_data.get_damage(attack_type))
+			apply_damage(AttackData.AttackType.FIRST_ATTACK)
 		AttackData.AttackType.SECOND_ATTACK:
 			$Settings/canAttackTimer.start(0.9)
 			$Settings/attackTimer.start(1.3)
 			animations.second_attack()
 			await get_tree().create_timer(0.4).timeout
-			apply_damage(attack_data.get_damage(attack_type))
+			apply_damage(AttackData.AttackType.SECOND_ATTACK)
 		AttackData.AttackType.THIRD_ATTACK:
 			$Settings/canAttackTimer.start(1.4)
 			$Settings/attackTimer.start(1.8)
 			animations.third_attack()
 			await get_tree().create_timer(0.38).timeout
-			apply_damage(attack_data.get_damage(attack_type))
+			apply_damage(AttackData.AttackType.THIRD_ATTACK)
 		AttackData.AttackType.AIR_ATTACK:
 			await get_tree().create_timer(0.38).timeout
-			apply_damage(attack_data.get_damage(attack_type))
+			apply_damage(AttackData.AttackType.AIR_ATTACK)
 			animations.air_attack()
 	
-func apply_damage(damage: int) -> void:
+func apply_damage(attack_type : AttackData.AttackType) -> void:
+	GLOBAL.stamina -= attack_data.get_cost(attack_type)
 	if target and !target.is_dead:
-		target.damage_ctrl(damage)
+		target.damage_ctrl(attack_data.get_damage(attack_type))
 		
 func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:

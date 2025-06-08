@@ -24,8 +24,19 @@ enum AttackType {
 	AttackType.AIR_ATTACK: "air_attack"
 }
 
+@export var cost_by_type: Dictionary = {
+	AttackType.NULL: 0,
+	AttackType.FIRST_ATTACK: 10,
+	AttackType.SECOND_ATTACK: 15,
+	AttackType.THIRD_ATTACK: 20,
+	AttackType.AIR_ATTACK: 12
+}
+
 func get_damage(attack_type: AttackType) -> int:
 	return damage_by_type.get(attack_type, 0)
 
 func get_animation(attack_type: AttackType) -> String:
 	return animation_by_type.get(attack_type, "")
+
+func get_cost(attack_type: AttackType) -> int:
+	return cost_by_type.get(attack_type, 0)

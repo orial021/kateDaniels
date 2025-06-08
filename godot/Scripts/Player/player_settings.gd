@@ -19,4 +19,11 @@ func _on_attack_timer_timeout() -> void:
 
 func _on_attack_mode_timer_timeout() -> void:
 	player.attack_mode = false
+	$SPTimer.start()
 	animations.idle()
+
+func _on_sp_timer_timeout() -> void:
+	if GLOBAL.stamina < GLOBAL.max_stamina:
+		GLOBAL.stamina += GLOBAL.max_stamina/100
+	else:
+		$SPTimer.stop()
