@@ -13,6 +13,7 @@ var can_move := false
 var is_dead := false
 
 func _ready() -> void:
+	$SubViewport/ProgressBar.max_value = max_health
 	health = max_health
 	
 func _process(delta: float) -> void:
@@ -30,11 +31,12 @@ func handle_movement(delta : float) -> void:
 	if !player_detected or !can_move or !player:
 		return
 		
-	var direction = (player.global_position - global_position).normalized()
-	velocity = direction * move_speed * delta
+	else:
+		var direction = (player.global_position - global_position).normalized()
+		velocity = direction * move_speed * delta
 	
-	if velocity.length() > 0.1:
-		rotate_towards_player(direction, delta)
+		if velocity.length() > 0.1:
+			rotate_towards_player(direction, delta)
 		
 func rotate_towards_player(direction: Vector3, delta: float) -> void:
 	var target_angle = atan2(direction.x, direction.z)
@@ -47,7 +49,7 @@ func update_health_display() -> void:
 func damage_ctrl(damage : int) -> void:
 	if is_dead:
 		return
-	
+		
 	health -= damage
 	$AnimationPlayer.play("Hit_B")
 	
@@ -71,7 +73,6 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		"Skeletons_Awaken_Floor":
 			if is_dead:
 				$AnimationPlayer.play("Skeletons_Inactive_Floor_Pose")
-				print("muerto")
 			else:
 				$AnimationPlayer.play("Walking_D_Skeletons")
 				can_move = true
@@ -90,14 +91,16 @@ func _on_area_detection_body_entered(body: Node3D) -> void:
 func _on_area_detection_body_exited(body: Node3D) -> void:
 	if body is Player and not is_dead:
 		$AnimationPlayer.play("Idle_Combat")
+		velocity = Vector3.ZERO
 		can_move = false
 		
 func _on_area_target_body_entered(body: Node3D) -> void:
 	if body is Player and not is_dead:
-		$AnimationPlayer.play("Idle_Combat")
+		velocity = Vector3.ZERO
 		can_move = false
+		$AnimationPlayer.play("Idle_Combat")
 
 func _on_area_target_body_exited(body: Node3D) -> void:
 	if body is Player and not is_dead:
-		$AnimationPlayer.play("Walking_D_Skeletons")
 		can_move = true
+		$AnimationPlayer.play("Walking_D_Skeletons")

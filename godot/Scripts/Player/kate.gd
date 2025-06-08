@@ -1,26 +1,38 @@
 extends CharacterBody3D
 class_name Player
-@onready var debug_panel: PanelContainer = $debugPanel
-@onready var animations: AnimationTree = $AnimationTree
+
+@export_category("Combat Settings")
+@export var speed := 300.0
+@export var sheathed_speed := 120.0
+@export var mouse_sensitivity := 0.05
+@export var jump_force := 7.0
+@export var attack_cooldown := 0.2
+@export_category("references")
+@export var gui: CanvasLayer
+const JUMP_FORCE = 7
 
 #region vars
-@onready var gui: CanvasLayer
+'''NODOS'''
+var attack_data : AttackData = AttackData.new()
+@onready var debug_panel: PanelContainer = $debugPanel
+@onready var animations: AnimationTree = $AnimationTree
 @onready var HEAD: Node3D = $Head
-@export var is_dead : bool = false
-@export var lives : int = 5
-@export var is_vulnerable : bool = true
-@export var jumping : bool = false
+
+'''ESTADOS'''
+var is_dead : bool = false
+var lives : int = 5
+var is_vulnerable : bool = true
+var jumping : bool = false
 var can_move : bool = true
 var is_unsheathed : bool = false
+
+'''ATAQUE'''
+var can_attack := true
 var attack_mode : bool = true
 var attack_on_time : bool = false
-
-var mouse_sensitivity : float = 0.05
-var speed = 300
 var last_attack : AttackData.AttackType = AttackData.AttackType.NULL
 var target : Enemy
 
-const JUMP_FORCE = 7
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -39,13 +51,19 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 		
 func _input(event: InputEvent) -> void:
+	handle_pause(event)
+	handle_weapon_togle(event)
+	handle_attack_input(event)
+	if event.is_action_pressed("ui_jump"):
+		jump_ctrl(1.0)
+				
+func handle_pause(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE and event.is_action_pressed("ui_shot"):
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	if event.is_action_pressed("ui_jump"):
-		jump_ctrl(1.0)
-		
+	
+func handle_weapon_togle(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_change_weapon"):
 		if is_unsheathed:
 			is_unsheathed = false
@@ -53,47 +71,58 @@ func _input(event: InputEvent) -> void:
 		else:
 			is_unsheathed = true
 			speed = 300
-	if event.is_action_pressed("ui_shot") and is_unsheathed:
-		if is_on_floor():
-			if last_attack == AttackData.AttackType.NULL:
-				attack_ctrl(AttackData.AttackType.FIRST_ATTACK)
-			elif last_attack == AttackData.AttackType.FIRST_ATTACK and attack_on_time:
-				attack_ctrl(AttackData.AttackType.SECOND_ATTACK)
-			elif last_attack == AttackData.AttackType.SECOND_ATTACK and attack_on_time:
-				attack_ctrl(AttackData.AttackType.THIRD_ATTACK)
-		else:
-			attack_ctrl(AttackData.AttackType.AIR_ATTACK)
-				
-func attack_ctrl(attack_type: AttackData.AttackType) -> void:
+			
+func handle_attack_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_shot") and is_unsheathed and can_attack:
+		var next_attack = get_next_attack_type()
+		if next_attack != AttackData.AttackType.NULL:
+			execute_attack(next_attack)
+	
+func get_next_attack_type() -> AttackData.AttackType:
+	if not is_on_floor():
+		return AttackData.AttackType.AIR_ATTACK
+		
+	match last_attack:
+		AttackData.AttackType.NULL:
+			return AttackData.AttackType.FIRST_ATTACK
+		AttackData.AttackType.FIRST_ATTACK:
+			return AttackData.AttackType.SECOND_ATTACK
+		AttackData.AttackType.SECOND_ATTACK:
+			return AttackData.AttackType.THIRD_ATTACK
+		_:
+			return AttackData.AttackType.NULL
+			
+func execute_attack(attack_type: AttackData.AttackType) -> void:
 	last_attack = attack_type
-	debug_panel.write(attack_on_time)
 	attack_on_time = true
 	attack_mode = true
-	$Settings/attackTimer.start()
-	$Settings/canAttackTimer.start() # realmente no esta implementado, implementar para disminuir el punto donde se puede hacer click
+	can_attack = false
 	
 	match attack_type:
 		AttackData.AttackType.FIRST_ATTACK:
-			print("primer ataque")
+			$Settings/canAttackTimer.start(1.4)
+			$Settings/attackTimer.start(1.8)
 			animations.first_attack()
-			await get_tree().create_timer(0.5).timeout
-			execute_damage(10)
+			await get_tree().create_timer(0.8).timeout
+			apply_damage(attack_data.get_damage(attack_type))
 		AttackData.AttackType.SECOND_ATTACK:
-			print("segundo ataque")
+			$Settings/canAttackTimer.start(0.9)
+			$Settings/attackTimer.start(1.3)
 			animations.second_attack()
-			await get_tree().create_timer(0.5).timeout
-			execute_damage(15)
+			await get_tree().create_timer(0.4).timeout
+			apply_damage(attack_data.get_damage(attack_type))
 		AttackData.AttackType.THIRD_ATTACK:
-			print("tercer ataque")
+			$Settings/canAttackTimer.start(1.4)
+			$Settings/attackTimer.start(1.8)
 			animations.third_attack()
-		AttackData.AttackType.AIR_ATTACK:
-			print("ataque aereo")
-			await get_tree().create_timer(0.5).timeout
-			execute_damage(20)
+			await get_tree().create_timer(0.38).timeout
+			apply_damage(attack_data.get_damage(attack_type))
+		AttackData.AttackType.AIR_ATTACK: # este lo estoy ignorando por ahora
+			await get_tree().create_timer(0.38).timeout
+			apply_damage(attack_data.get_damage(attack_type))
 			animations.air_attack()
 	
-
-func execute_damage(damage: int) -> void:
+func apply_damage(damage: int) -> void:
 	if target and !target.is_dead:
 		target.damage_ctrl(damage)
 		
