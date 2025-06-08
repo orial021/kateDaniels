@@ -11,5 +11,9 @@ func _process(delta: float) -> void:
 
 func attackTime() -> void:
 	$Control/attackTime.visible = true
-	await get_tree().create_timer(0.4).timeout
+	if player.target != null:
+		Engine.set_time_scale(0.3)
+		await get_tree().create_timer(0.4).timeout
+		Engine.set_time_scale(1.0)
+
 	$Control/attackTime.visible = false

@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://bb105sas15wt8" path="res://Scripts/Player/gui.gd" id="1_qyd3e"]
 
 [sub_resource type="Gradient" id="Gradient_qyd3e"]
-colors = PackedColorArray(1, 0, 0, 0.345098, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0, 0.275862, 1)
+colors = PackedColorArray(1, 0, 0, 0.345098, 1, 0.551724, 0.551724, 0.154699, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_bm56d"]
 gradient = SubResource("Gradient_qyd3e")

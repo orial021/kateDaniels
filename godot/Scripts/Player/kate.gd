@@ -89,6 +89,8 @@ func get_next_attack_type() -> AttackData.AttackType:
 			return AttackData.AttackType.SECOND_ATTACK
 		AttackData.AttackType.SECOND_ATTACK:
 			return AttackData.AttackType.THIRD_ATTACK
+		AttackData.AttackType.THIRD_ATTACK:
+			return AttackData.AttackType.FIRST_ATTACK
 		_:
 			return AttackData.AttackType.NULL
 			
@@ -117,7 +119,7 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 			animations.third_attack()
 			await get_tree().create_timer(0.38).timeout
 			apply_damage(attack_data.get_damage(attack_type))
-		AttackData.AttackType.AIR_ATTACK: # este lo estoy ignorando por ahora
+		AttackData.AttackType.AIR_ATTACK:
 			await get_tree().create_timer(0.38).timeout
 			apply_damage(attack_data.get_damage(attack_type))
 			animations.air_attack()

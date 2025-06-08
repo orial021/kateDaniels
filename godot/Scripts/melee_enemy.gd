@@ -80,7 +80,7 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			can_move = true
 
 func _on_area_detection_body_entered(body: Node3D) -> void:
-	if body is Player:
+	if body is Player and not is_dead:
 		if not player_detected:
 			$AnimationPlayer.play("Skeletons_Awaken_Floor")
 			player_detected = true
