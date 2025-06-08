@@ -2,7 +2,6 @@ extends CharacterBody3D
 class_name Player
 @onready var debug_panel: PanelContainer = $debugPanel
 @onready var animations: AnimationTree = $AnimationTree
-var current_attack: AttackData = AttackData.new()
 
 #region vars
 @onready var gui: CanvasLayer
@@ -17,9 +16,9 @@ var attack_mode : bool = true
 var attack_on_time : bool = false
 
 var mouse_sensitivity : float = 0.05
-var gravity : float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var speed = 300
-var last_attack : String = ""
+var last_attack : AttackData.AttackType = AttackData.AttackType.NULL
+var target : Enemy
 
 const JUMP_FORCE = 7
 
@@ -28,7 +27,7 @@ func _ready() -> void:
 	HEAD.set_rotation_degrees(Vector3.ZERO)
 
 func _physics_process(delta: float) -> void:
-	velocity.y -= get_physics_process_delta_time() * gravity
+	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
 	if can_move:
 		HEAD.rotation.x = clamp(HEAD.rotation.x, deg_to_rad(-90), deg_to_rad(90))
 		if not is_dead:
@@ -54,31 +53,50 @@ func _input(event: InputEvent) -> void:
 		else:
 			is_unsheathed = true
 			speed = 300
-	if is_unsheathed:
+	if event.is_action_pressed("ui_shot") and is_unsheathed:
 		if is_on_floor():
-			if event.is_action_pressed("ui_shot")and last_attack == "":
-				last_attack = current_attack.name.FIRST_ATTACK
-				attack_mode = true
-				attack_on_time = true
-				$Settings/attackTimer.start()
-				$Settings/canAttackTimer.start()
-				animations.first_attack()
-			elif event.is_action_pressed("ui_shot") and last_attack == current_attack.name.FIRST_ATTACK and attack_on_time:
-				last_attack = current_attack.name.SECOND_ATTACK
-				$Settings/attackTimer.start()
-				$Settings/canAttackTimer.start()
-				animations.second_attack()
-			elif event.is_action_pressed("ui_shot") and last_attack == current_attack.name.SECOND_ATTACK and attack_on_time:
-				last_attack = current_attack.name.THIRD_ATTACK
-				animations.third_attack()
+			if last_attack == AttackData.AttackType.NULL:
+				attack_ctrl(AttackData.AttackType.FIRST_ATTACK)
+			elif last_attack == AttackData.AttackType.FIRST_ATTACK and attack_on_time:
+				attack_ctrl(AttackData.AttackType.SECOND_ATTACK)
+			elif last_attack == AttackData.AttackType.SECOND_ATTACK and attack_on_time:
+				attack_ctrl(AttackData.AttackType.THIRD_ATTACK)
 		else:
-			if event.is_action_pressed("ui_shot"):
-				attack_mode = true
-				$Settings/canAttackTimer.start()
-				last_attack = current_attack.name.AIR_ATTACK
-				animations.air_attack()
+			attack_ctrl(AttackData.AttackType.AIR_ATTACK)
 				
+func attack_ctrl(attack_type: AttackData.AttackType) -> void:
+	last_attack = attack_type
+	debug_panel.write(attack_on_time)
+	attack_on_time = true
+	attack_mode = true
+	$Settings/attackTimer.start()
+	$Settings/canAttackTimer.start() # realmente no esta implementado, implementar para disminuir el punto donde se puede hacer click
 	
+	match attack_type:
+		AttackData.AttackType.FIRST_ATTACK:
+			print("primer ataque")
+			animations.first_attack()
+			await get_tree().create_timer(0.5).timeout
+			execute_damage(10)
+		AttackData.AttackType.SECOND_ATTACK:
+			print("segundo ataque")
+			animations.second_attack()
+			await get_tree().create_timer(0.5).timeout
+			execute_damage(15)
+		AttackData.AttackType.THIRD_ATTACK:
+			print("tercer ataque")
+			animations.third_attack()
+		AttackData.AttackType.AIR_ATTACK:
+			print("ataque aereo")
+			await get_tree().create_timer(0.5).timeout
+			execute_damage(20)
+			animations.air_attack()
+	
+
+func execute_damage(damage: int) -> void:
+	if target and !target.is_dead:
+		target.damage_ctrl(damage)
+		
 func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		HEAD.rotation_degrees.x -= event.relative.y * -mouse_sensitivity
@@ -99,3 +117,11 @@ func anim_ctrl() ->void:
 			
 func jump_ctrl(power : float) -> void:
 	animations.jump_start()
+
+func _on_attack_area_body_entered(body: Node3D) -> void:
+	if body is Enemy:
+		target = body
+		
+func _on_attack_area_body_exited(body: Node3D) -> void:
+	if body is Enemy:
+		target = null

@@ -3,13 +3,13 @@ extends AnimationTree
 var ANIMS : playerAnimation = playerAnimation.new()
 var jump_path : String = "parameters/Jump/request"
 var current_animation_state : String = ""
-@onready var debug_panel: PanelContainer = $"../debugPanel"
 
+@onready var debug_panel: PanelContainer = $"../debugPanel"
 @onready var player : Player = get_parent()
 @onready var _state_machine : AnimationNodeStateMachinePlayback = get("parameters/StateMachine/playback")
 
 func _process(delta: float) -> void:
-	debug_panel.write(player.last_attack)
+
 	state_machine()
 		
 func cheer() -> void:
@@ -108,7 +108,7 @@ func state_machine() -> void:
 					run()
 				if GLOBAL.get_axis().x < 0:
 					run_left()
-			if GLOBAL.get_axis().y < 0:
+			if GLOBAL.get_axis().y < 0 and GLOBAL.get_axis().x == 0:
 				walk_back()
 			
 		ANIMS.RUN_LEFT:
@@ -121,7 +121,7 @@ func state_machine() -> void:
 					run()
 				if GLOBAL.get_axis().x > 0:
 					run_right()
-			if GLOBAL.get_axis().y < 0:
+			if GLOBAL.get_axis().y < 0 and GLOBAL.get_axis().x == 0:
 				walk_back()
 			
 		ANIMS.WALK_BACK:
@@ -131,9 +131,9 @@ func state_machine() -> void:
 				idle()
 			if GLOBAL.get_axis().y > 0:
 				run()
-			if GLOBAL.get_axis().x > 0 or GLOBAL.get_axis().y > 0 and GLOBAL.get_axis().x > 0:
+			if GLOBAL.get_axis().x > 0:
 				run_right()
-			if GLOBAL.get_axis().x < 0 or GLOBAL.get_axis().y > 0 and GLOBAL.get_axis().x < 0:
+			if GLOBAL.get_axis().x < 0:
 				run_left()
 				
 		ANIMS.WALK:
@@ -156,6 +156,8 @@ func state_machine() -> void:
 				run_left()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
+			if Input.is_action_just_pressed("ui_shot"):
+				first_attack()
 				
 		ANIMS.JUMP_START:
 			current_animation_state = ANIMS.JUMP_START
@@ -167,6 +169,7 @@ func _on_animation_tree_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
 		ANIMS.CHEER:
 			player.can_move = true
+			
 
 func _on_animation_tree_animation_started(anim_name: StringName) -> void:
 	match anim_name:

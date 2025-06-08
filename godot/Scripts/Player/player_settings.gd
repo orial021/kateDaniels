@@ -5,7 +5,7 @@ extends Node
 
 
 func _on_attack_timer_timeout() -> void:
-	player.last_attack = ""
+	player.last_attack = AttackData.AttackType.NULL
 	player.attack_on_time = false
 	$attackModeTimer.start()
 	animations.attack_idle()
