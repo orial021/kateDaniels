@@ -6,9 +6,9 @@ var current_wave: WaveType = WaveType.TECH
 
 func _ready() -> void:
 	env.environment.volumetric_fog_enabled = false
-	await get_tree().create_timer(7).timeout
-	print("ola magica")
-	toggle_wave()
+	#await get_tree().create_timer(7).timeout
+	#print("ola magica")
+	#toggle_wave()
 	
 func toggle_wave():
 	current_wave = WaveType.MAGIC if current_wave == WaveType.TECH else WaveType.TECH
