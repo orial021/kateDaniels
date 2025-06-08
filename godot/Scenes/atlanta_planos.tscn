@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://cbo1uoglbapfx"]
+
+[ext_resource type="PackedScene" uid="uid://dnxn2nvspamvr" path="res://Assets/Models/untitled.fbx" id="1_mih4k"]
+
+[node name="atlantaPlanos" instance=ExtResource("1_mih4k")]
+
+[node name="EXPORT_ESRI_TOPO_WM" parent="." index="1"]
+visible = false
+
+[node name="Areas_building" parent="." index="2"]
+visible = false
+
+[node name="Areas_highway" parent="." index="4"]
+visible = false

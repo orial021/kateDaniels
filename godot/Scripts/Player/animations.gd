@@ -1,0 +1,14 @@
+class_name playerAnimation extends Resource
+
+const CHEER = "Cheer"
+const IDLE = "Idle"
+const RUN = "Running"
+const RUN_LEFT = "Running_Strafe_Left"
+const RUN_RIGHT = "Running_Strafe_Right"
+const JUMP = "Jump_Full_Short"
+const WALK_BACK = "Walking_Backwards"
+const WALK = "Walking_B"
+const FIRST_ATTACK = "2H_Melee_Attack_Chop"
+const SECOND_ATTACK = "2H_Melee_Attack_Slice"
+const THIRD_ATTACK = "2H_Melee_Attack_Stab"
+const ATTACK_IDLE = "Blocking"

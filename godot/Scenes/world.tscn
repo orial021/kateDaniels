@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://bconxdubumehp"]
+
+[ext_resource type="PackedScene" uid="uid://dmr1tmby38n88" path="res://Scenes/Atlanta.tscn" id="1_go701"]
+[ext_resource type="PackedScene" uid="uid://dpbmvrb0214w" path="res://Scenes/kate.tscn" id="2_5a7ea"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_go701"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_5a7ea"]
+sky_material = SubResource("ProceduralSkyMaterial_go701")
+
+[sub_resource type="Environment" id="Environment_8j60k"]
+background_mode = 2
+sky = SubResource("Sky_5a7ea")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="world" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_8j60k")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 4096.0
+
+[node name="Atlanta" parent="." instance=ExtResource("1_go701")]
+
+[node name="kate" parent="." instance=ExtResource("2_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.81407, 0)
