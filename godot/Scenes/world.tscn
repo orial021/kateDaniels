@@ -7,19 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://d4e1mvpis5xl1" path="res://Scenes/melee_enemy.tscn" id="3_5a7ea"]
 [ext_resource type="PackedScene" uid="uid://de3r7yeiilc51" path="res://Scenes/gui.tscn" id="4_8j60k"]
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_5ukr8"]
-panorama = ExtResource("1_fo5ed")
-
-[sub_resource type="Sky" id="Sky_5a7ea"]
-sky_material = SubResource("PanoramaSkyMaterial_5ukr8")
-
-[sub_resource type="Environment" id="Environment_8j60k"]
-background_mode = 2
-sky = SubResource("Sky_5a7ea")
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.0
-volumetric_fog_emission_energy = 0.5
-
 [sub_resource type="Gradient" id="Gradient_5ukr8"]
 colors = PackedColorArray(0.3, 0, 0.4, 1, 0.687524, 0.0301934, 0.0167878, 1)
 
@@ -36,15 +23,21 @@ density_texture = SubResource("NoiseTexture3D_o06y3")
 [sub_resource type="FogMaterial" id="FogMaterial_5v1tr"]
 density = -1.0
 
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_5ukr8"]
+panorama = ExtResource("1_fo5ed")
+
+[sub_resource type="Sky" id="Sky_5a7ea"]
+sky_material = SubResource("PanoramaSkyMaterial_5ukr8")
+
+[sub_resource type="Environment" id="Environment_8j60k"]
+background_mode = 2
+sky = SubResource("Sky_5a7ea")
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_emission_energy = 0.5
+
 [node name="world" type="Node3D"]
 script = ExtResource("1_5ukr8")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_8j60k")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.0781758, -0.82193, -0.564199, 0.513222, -0.518359, 0.684037, -0.854688, -0.236084, 0.462356, 21.2333, 25.5994, 69.4294)
-shadow_enabled = true
 
 [node name="Atlanta" parent="." instance=ExtResource("1_go701")]
 
@@ -77,3 +70,17 @@ player = NodePath("../kate")
 
 [node name="GUI" parent="." node_paths=PackedStringArray("player") instance=ExtResource("4_8j60k")]
 player = NodePath("../kate")
+
+[node name="Settings" type="Node" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Settings"]
+environment = SubResource("Environment_8j60k")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Settings"]
+transform = Transform3D(-0.0781758, -0.82193, -0.564199, 0.513222, -0.518359, 0.684037, -0.854688, -0.236084, 0.462356, 21.2333, 25.5994, 69.4294)
+shadow_enabled = true
+
+[node name="waveTimer" type="Timer" parent="Settings"]
+wait_time = 60.0
+
+[connection signal="timeout" from="Settings/waveTimer" to="." method="_on_wave_timer_timeout"]

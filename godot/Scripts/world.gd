@@ -1,7 +1,7 @@
 extends Node3D
 
 
-@onready var env = $WorldEnvironment
+@onready var env = $Settings/WorldEnvironment
 
 func _ready() -> void:
 	env.environment.volumetric_fog_enabled = false
@@ -19,3 +19,6 @@ func update_environment():
 	else:
 		env.environment.background_color = Color(0.1, 0.1, 0.1)
 		env.environment.fog_enabled = false
+
+func _on_wave_timer_timeout() -> void:
+	toggle_wave()

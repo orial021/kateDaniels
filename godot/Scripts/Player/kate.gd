@@ -2,11 +2,11 @@ extends CharacterBody3D
 class_name Player
 
 @export_category("Combat Settings")
-@export var speed := 300.0
-@export var sheathed_speed := 120.0
+@export var mov_speed : float = STATS.derived_stats["movement_speed"]
+#@export var sheathed_speed := 120.0
 @export var mouse_sensitivity := 0.05
 @export var jump_force := 7.0
-@export var attack_cooldown := 0.2
+#@export var attack_cooldown := 0.2
 @export_category("references")
 @export var gui: CanvasLayer
 const JUMP_FORCE = 7
@@ -20,7 +20,6 @@ var attack_data : AttackData = AttackData.new()
 
 '''ESTADOS'''
 var is_dead : bool = false
-var lives : int = 5
 var is_vulnerable : bool = true
 var jumping : bool = false
 var can_move : bool = true
@@ -37,6 +36,8 @@ var target : Enemy
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	HEAD.set_rotation_degrees(Vector3.ZERO)
+	GLOBAL.health = STATS.derived_stats["max_hp"]
+	GLOBAL.stamina = STATS.derived_stats["max_sp"]
 
 func _physics_process(delta: float) -> void:
 	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
@@ -72,10 +73,10 @@ func handle_weapon_togle(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_change_weapon"):
 		if is_unsheathed:
 			is_unsheathed = false
-			speed = 120
+			mov_speed = 120
 		else:
 			is_unsheathed = true
-			speed = 300
+			mov_speed = 300
 			
 func handle_attack_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_shot") and is_unsheathed and can_attack:
@@ -100,34 +101,35 @@ func get_next_attack_type() -> AttackData.AttackType:
 			return AttackData.AttackType.NULL
 			
 func execute_attack(attack_type: AttackData.AttackType) -> void:
-	last_attack = attack_type
-	attack_on_time = true
-	attack_mode = true
-	can_attack = false
-	
-	match attack_type:
-		AttackData.AttackType.FIRST_ATTACK:
-			$Settings/canAttackTimer.start(1.4)
-			$Settings/attackTimer.start(1.8)
-			animations.first_attack()
-			await get_tree().create_timer(0.8).timeout
-			apply_damage(AttackData.AttackType.FIRST_ATTACK)
-		AttackData.AttackType.SECOND_ATTACK:
-			$Settings/canAttackTimer.start(0.9)
-			$Settings/attackTimer.start(1.3)
-			animations.second_attack()
-			await get_tree().create_timer(0.4).timeout
-			apply_damage(AttackData.AttackType.SECOND_ATTACK)
-		AttackData.AttackType.THIRD_ATTACK:
-			$Settings/canAttackTimer.start(1.4)
-			$Settings/attackTimer.start(1.8)
-			animations.third_attack()
-			await get_tree().create_timer(0.38).timeout
-			apply_damage(AttackData.AttackType.THIRD_ATTACK)
-		AttackData.AttackType.AIR_ATTACK:
-			await get_tree().create_timer(0.38).timeout
-			apply_damage(AttackData.AttackType.AIR_ATTACK)
-			animations.air_attack()
+	if GLOBAL.stamina - attack_data.get_cost(attack_type) >= 0:
+		last_attack = attack_type
+		attack_on_time = true
+		attack_mode = true
+		can_attack = false
+		
+		match attack_type:
+			AttackData.AttackType.FIRST_ATTACK:
+				$Settings/canAttackTimer.start(1.4)
+				$Settings/attackTimer.start(1.8)
+				animations.first_attack()
+				await get_tree().create_timer(0.8).timeout
+				apply_damage(AttackData.AttackType.FIRST_ATTACK)
+			AttackData.AttackType.SECOND_ATTACK:
+				$Settings/canAttackTimer.start(0.9)
+				$Settings/attackTimer.start(1.3)
+				animations.second_attack()
+				await get_tree().create_timer(0.4).timeout
+				apply_damage(AttackData.AttackType.SECOND_ATTACK)
+			AttackData.AttackType.THIRD_ATTACK:
+				$Settings/canAttackTimer.start(1.4)
+				$Settings/attackTimer.start(1.8)
+				animations.third_attack()
+				await get_tree().create_timer(0.38).timeout
+				apply_damage(AttackData.AttackType.THIRD_ATTACK)
+			AttackData.AttackType.AIR_ATTACK:
+				await get_tree().create_timer(0.38).timeout
+				apply_damage(AttackData.AttackType.AIR_ATTACK)
+				animations.air_attack()
 	
 func apply_damage(attack_type : AttackData.AttackType) -> void:
 	GLOBAL.stamina -= attack_data.get_cost(attack_type)
@@ -145,8 +147,8 @@ func motion_ctrl(delta) -> void:
 	
 	if is_on_floor():
 		
-		velocity.x = direction.x * -speed * delta
-		velocity.z = direction.z * speed * delta
+		velocity.x = direction.x * -mov_speed * delta
+		velocity.z = direction.z * mov_speed * delta
 		
 func anim_ctrl() ->void:
 	$"Rig/Skeleton3D/2H_Sword/2H_Sword".visible = is_unsheathed

@@ -85,7 +85,7 @@ func state_machine() -> void:
 						walk_back()
 					
 		ANIMS.RUN:
-			player.speed = 300
+			player.mov_speed = 300
 			current_animation_state = ANIMS.RUN
 			if GLOBAL.get_axis() == Vector2.ZERO:
 				idle()
@@ -99,7 +99,7 @@ func state_machine() -> void:
 				walk()
 
 		ANIMS.RUN_RIGHT:
-			player.speed = 300
+			player.mov_speed = 300
 			current_animation_state = ANIMS.RUN_RIGHT
 			if GLOBAL.get_axis() == Vector2.ZERO:
 				idle()
@@ -112,7 +112,7 @@ func state_machine() -> void:
 				walk_back()
 			
 		ANIMS.RUN_LEFT:
-			player.speed = 300
+			player.mov_speed = 300
 			current_animation_state = ANIMS.RUN_LEFT
 			if GLOBAL.get_axis() == Vector2.ZERO:
 				idle()
@@ -126,7 +126,7 @@ func state_machine() -> void:
 			
 		ANIMS.WALK_BACK:
 			current_animation_state = ANIMS.WALK_BACK
-			player.speed = 120
+			player.mov_speed = 120
 			if GLOBAL.get_axis() == Vector2.ZERO:
 				idle()
 			if GLOBAL.get_axis().y > 0:
@@ -138,7 +138,7 @@ func state_machine() -> void:
 				
 		ANIMS.WALK:
 			current_animation_state = ANIMS.WALK
-			player.speed = 120
+			player.mov_speed = 120
 			if GLOBAL.get_axis() == Vector2.ZERO:
 				idle()
 			if GLOBAL.get_axis().y < 0:
