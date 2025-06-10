@@ -1,4 +1,4 @@
 extends Camera3D
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	$Effects.visible = GLOBAL.high_cognition

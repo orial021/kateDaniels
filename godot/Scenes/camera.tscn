@@ -1,13 +1,13 @@
 [gd_scene load_steps=5 format=3 uid="uid://bvrkt7rh0lmnf"]
 
-[ext_resource type="Shader" uid="uid://dsv6g4j15pa4n" path="res://Resources/Shaders/outline.gdshader" id="1_375tr"]
 [ext_resource type="Script" uid="uid://cu224eckqeb07" path="res://Scripts/Player/camera.gd" id="1_f1cf7"]
+[ext_resource type="Shader" uid="uid://ck6cgr2jqpmku" path="res://Resources/Shaders/new_outline.gdshader" id="2_f1cf7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f1cf7"]
 render_priority = 0
-shader = ExtResource("1_375tr")
-shader_parameter/shadow_color = Color(0, 0, 0, 1)
-shader_parameter/shadow_thickness = 1.0
+shader = ExtResource("2_f1cf7")
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/outline_threshold = 0.2
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_mhsga"]
 material = SubResource("ShaderMaterial_f1cf7")

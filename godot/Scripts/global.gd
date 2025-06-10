@@ -5,6 +5,7 @@ var gravity : float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var high_cognition : bool = false
 var health : int
 var stamina : int
+var mana : int
 enum WaveType {MAGIC, TECH}
 var current_wave: WaveType = WaveType.TECH
 

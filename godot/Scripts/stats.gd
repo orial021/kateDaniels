@@ -32,7 +32,7 @@ var derived_stats := {
 	"max_hp": 100,
 	"max_mp": 50,
 	"max_sp": 100,
-	"critical_chance": 0.05,
+	"critical_chance": 0.4,
 	"dodge_chance": 0.1
 }
 

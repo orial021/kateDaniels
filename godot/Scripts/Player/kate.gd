@@ -38,6 +38,7 @@ func _ready() -> void:
 	HEAD.set_rotation_degrees(Vector3.ZERO)
 	GLOBAL.health = STATS.derived_stats["max_hp"]
 	GLOBAL.stamina = STATS.derived_stats["max_sp"]
+	GLOBAL.mana = STATS.derived_stats["max_mp"]
 
 func _physics_process(delta: float) -> void:
 	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
@@ -57,7 +58,7 @@ func _input(event: InputEvent) -> void:
 	handle_weapon_togle(event)
 	handle_attack_input(event)
 	if event.is_action_pressed("ui_jump"):
-		jump_ctrl(1.0)
+		jump_ctrl()
 				
 func handle_high_cognition(event:InputEvent) -> void:
 	if event.is_action_pressed("ui_cogn"):
@@ -83,7 +84,10 @@ func handle_attack_input(event: InputEvent) -> void:
 		var next_attack = get_next_attack_type()
 		if next_attack != AttackData.AttackType.NULL:
 			execute_attack(next_attack)
-	
+			
+	if event.is_action_pressed("ui_punch") and can_attack:
+		execute_attack(AttackData.AttackType.PUNCH_UP)
+		
 func get_next_attack_type() -> AttackData.AttackType:
 	if not is_on_floor():
 		return AttackData.AttackType.AIR_ATTACK
@@ -98,7 +102,7 @@ func get_next_attack_type() -> AttackData.AttackType:
 		AttackData.AttackType.THIRD_ATTACK:
 			return AttackData.AttackType.FIRST_ATTACK
 		_:
-			return AttackData.AttackType.NULL
+			return AttackData.AttackType.FIRST_ATTACK
 			
 func execute_attack(attack_type: AttackData.AttackType) -> void:
 	if GLOBAL.stamina - attack_data.get_cost(attack_type) >= 0:
@@ -127,9 +131,18 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 				await get_tree().create_timer(0.38).timeout
 				apply_damage(AttackData.AttackType.THIRD_ATTACK)
 			AttackData.AttackType.AIR_ATTACK:
-				await get_tree().create_timer(0.38).timeout
-				apply_damage(AttackData.AttackType.AIR_ATTACK)
+				$Settings/canAttackTimer.start(0.8)
+				$Settings/attackTimer.start(1.2)
 				animations.air_attack()
+				await get_tree().create_timer(0.48).timeout
+				apply_damage(AttackData.AttackType.AIR_ATTACK)
+			AttackData.AttackType.PUNCH_UP:
+				$Settings/canAttackTimer.start(0.8)
+				$Settings/attackTimer.start(1.2)
+				animations.punch_up()
+				await get_tree().create_timer(0.6).timeout
+				apply_damage(AttackData.AttackType.PUNCH_UP)
+				
 	
 func apply_damage(attack_type : AttackData.AttackType) -> void:
 	GLOBAL.stamina -= attack_data.get_cost(attack_type)
@@ -154,7 +167,7 @@ func anim_ctrl() ->void:
 	$"Rig/Skeleton3D/2H_Sword/2H_Sword".visible = is_unsheathed
 	$"Rig/Skeleton3D/Back/2H_Sword".visible = !is_unsheathed
 			
-func jump_ctrl(power : float) -> void:
+func jump_ctrl() -> void:
 	animations.jump_start()
 
 func _on_attack_area_body_entered(body: Node3D) -> void:

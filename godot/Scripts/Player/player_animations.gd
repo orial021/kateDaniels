@@ -8,8 +8,7 @@ var current_animation_state : String = ""
 @onready var player : Player = get_parent()
 @onready var _state_machine : AnimationNodeStateMachinePlayback = get("parameters/StateMachine/playback")
 
-func _process(delta: float) -> void:
-
+func _process(_delta: float) -> void:
 	state_machine()
 		
 func cheer() -> void:
@@ -41,6 +40,9 @@ func second_attack() -> void:
 	
 func third_attack() -> void:
 	_state_machine.travel(ANIMS.THIRD_ATTACK)
+	
+func punch_up() ->void:
+	_state_machine.travel(ANIMS.PUNCH_UP)
 	
 func walk() -> void:
 	if not player.is_unsheathed:

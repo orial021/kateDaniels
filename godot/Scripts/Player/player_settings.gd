@@ -27,7 +27,10 @@ func _on_attack_mode_timer_timeout() -> void:
 	animations.idle()
 
 func _on_sp_timer_timeout() -> void:
-	if GLOBAL.stamina < STATS.derived_stats["max_sp"]:
-		GLOBAL.stamina += STATS.derived_stats["max_sp"]/100 * stamina_regen_multipliers[GLOBAL.current_wave]
+	if not player.attack_mode:
+		if GLOBAL.stamina < STATS.derived_stats["max_sp"]:
+			GLOBAL.stamina += STATS.derived_stats["max_sp"]/100 * stamina_regen_multipliers[GLOBAL.current_wave]
+		else:
+			$SPTimer.stop()
 	else:
 		$SPTimer.stop()

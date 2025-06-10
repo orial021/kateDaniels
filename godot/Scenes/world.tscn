@@ -58,14 +58,12 @@ material = SubResource("FogMaterial_5v1tr")
 [node name="meleeEnemy" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.59801, 3.4732, 41.3811)
 player = NodePath("../kate")
-max_health = 1000
 
 [node name="meleeEnemy2" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.997, 3.4732, 56.7488)
 player = NodePath("../kate")
 
 [node name="meleeEnemy3" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.0238, 3.4732, 53.5246)
 player = NodePath("../kate")
 
 [node name="GUI" parent="." node_paths=PackedStringArray("player") instance=ExtResource("4_8j60k")]
