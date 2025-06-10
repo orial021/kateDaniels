@@ -7,10 +7,12 @@ class_name Enemy
 @export var move_speed : int
 @export var rotation_speed := 10.0
 
+var gravity = GLOBAL.gravity
 var health : int
 var player_detected : bool = false
 var can_move := false
 var is_dead := false
+var is_launched := false
 var received_effect := []
 
 func _ready() -> void:
@@ -23,25 +25,25 @@ func _process(_delta: float) -> void:
 	update_health_display()
 	
 func _physics_process(delta):
+	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
 	if is_dead:
 		return
-	if is_on_floor():
+	if is_on_floor() and can_move:
+		if is_launched:
+			is_launched = false
 		handle_movement(delta)
-	else:
-		velocity.y -= GLOBAL.gravity/100
 	move_and_slide()
 	
 func handle_movement(delta : float) -> void:
-	if !player_detected or !can_move or !player:
-		return
-		
-	else:
-		var direction := (player.global_position - global_position).normalized()
-		velocity = direction * move_speed * delta
-	
+	var direction := (player.global_position - global_position).normalized()
+	if can_move or player or !is_launched:
 		if velocity.length() > 0.1:
 			rotate_towards_player(direction, delta)
-		
+		if !player_detected:
+			return
+		else:
+			velocity = direction * move_speed * delta
+			
 func rotate_towards_player(direction: Vector3, delta: float) -> void:
 	var target_angle = atan2(direction.x, direction.z)
 	rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
@@ -54,7 +56,7 @@ func damage_ctrl(damage_info : Dictionary) -> void:
 	if is_dead:
 		return
 	if not is_on_floor():
-		velocity.y = 100
+		velocity.y = 5
 	var final_damage = stats.calculate_damage(
 		damage_info["damage"],
 		damage_info["is_physical"],
@@ -65,19 +67,20 @@ func damage_ctrl(damage_info : Dictionary) -> void:
 		damage_info.value_effect
 	]
 	apply_effect(received_effect)
-	print("efectos: ", received_effect[0])
 	health -= final_damage
 	display_damage(final_damage, damage_info.is_critical)
 	$AnimationPlayer.play("Hit_B")
-	
 	if health <= 0:
 		die()
+		
 func apply_effect(effects : Array) -> void:
 	match effects[0]:
 		"launch":
 			if randf() <= effects[1]:
-				velocity.y = 150
-	move_and_slide()
+			#if randf() <= 1:
+				is_launched = true
+				velocity.y = 8
+				$AnimationPlayer.play("Hit_B", -1, 0.1)
 	
 func die() -> void:
 	is_dead = true
@@ -131,16 +134,19 @@ func _on_area_detection_body_entered(body: Node3D) -> void:
 func _on_area_detection_body_exited(body: Node3D) -> void:
 	if body is Player and not is_dead:
 		$AnimationPlayer.play("Idle_Combat")
-		velocity = Vector3.ZERO
+		velocity.x = 0
+		velocity.z = 0
 		can_move = false
 		
 func _on_area_target_body_entered(body: Node3D) -> void:
 	if body is Player and not is_dead:
-		velocity = Vector3.ZERO
+		velocity.x = 0
+		velocity.z = 0
 		can_move = false
 		$AnimationPlayer.play("Idle_Combat")
 
 func _on_area_target_body_exited(body: Node3D) -> void:
-	if body is Player and not is_dead:
+	if body is Player and not is_dead and is_on_floor():
+		print("esta adentro")
 		can_move = true
 		$AnimationPlayer.play("Walking_D_Skeletons")

@@ -95,6 +95,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -2.0
 offset_right = -2.0
+offset_bottom = -53.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 8
@@ -230,14 +231,21 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "WAVE:   TECH"
 
+[node name="Label" type="Label" parent="Control/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 40
+text = "debug"
+
 [node name="stats" type="PanelContainer" parent="Control"]
 visible = false
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-offset_left = 777.0
-offset_top = 138.0
-offset_right = 977.0
-offset_bottom = 588.0
+offset_left = 955.0
+offset_top = 204.0
+offset_right = 1155.0
+offset_bottom = 654.0
 size_flags_horizontal = 8
 theme_override_styles/panel = SubResource("StyleBoxFlat_qyd3e")
 
@@ -291,13 +299,13 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="footer" type="VBoxContainer" parent="Control"]
+[node name="footer" type="HBoxContainer" parent="Control"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -8.0
+offset_top = -50.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -306,4 +314,43 @@ layout_mode = 2
 size_flags_horizontal = 8
 text = "stats (T)"
 
+[node name="Button" type="Button" parent="Control/footer"]
+layout_mode = 2
+text = "wave (enter)"
+
+[node name="Button2" type="Button" parent="Control/footer"]
+layout_mode = 2
+text = "high congnition (E)"
+
+[node name="attackInstruction" type="Button" parent="Control/footer"]
+layout_mode = 2
+text = "attacks (R)"
+
+[node name="Button3" type="Button" parent="Control/footer"]
+layout_mode = 2
+text = "salir (P)"
+
+[node name="instructions" type="PanelContainer" parent="Control"]
+visible = false
+layout_mode = 0
+offset_left = 540.0
+offset_top = 341.0
+offset_right = 874.0
+offset_bottom = 634.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/instructions"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/instructions/VBoxContainer"]
+layout_mode = 2
+text = "Atacar con click.
+realizar un nuevo ataque
+cuando lapantalla este en
+rojo 
+para combo.
+salto + click: ataque aereo
+Click derecho: ataque launch
+Los golpes consumen sp"
+
 [connection signal="pressed" from="Control/footer/stats" to="." method="_on_stats_pressed"]
+[connection signal="pressed" from="Control/footer/attackInstruction" to="." method="_on_attack_instruction_pressed"]

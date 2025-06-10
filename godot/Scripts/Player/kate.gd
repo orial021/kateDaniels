@@ -34,6 +34,7 @@ var target : Enemy
 
 
 func _ready() -> void:
+	$AnimationTree.active = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	HEAD.set_rotation_degrees(Vector3.ZERO)
 	GLOBAL.health = STATS.derived_stats["max_hp"]
@@ -41,6 +42,7 @@ func _ready() -> void:
 	GLOBAL.mana = STATS.derived_stats["max_mp"]
 
 func _physics_process(delta: float) -> void:
+	debug_panel.write(velocity.y)
 	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
 	if can_move:
 		HEAD.rotation.x = clamp(HEAD.rotation.x, deg_to_rad(-90), deg_to_rad(90))
@@ -112,34 +114,35 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 		can_attack = false
 		
 		match attack_type:
+			
 			AttackData.AttackType.FIRST_ATTACK:
-				$Settings/canAttackTimer.start(1.4)
-				$Settings/attackTimer.start(1.8)
-				animations.first_attack()
-				await get_tree().create_timer(0.8).timeout
-				apply_damage(AttackData.AttackType.FIRST_ATTACK)
+				$Settings.use_attack_time(1.6, true) # tiempo para poder volver a atacar, antes de este tiempo el click no vale
+				$Settings/endAttackTimer.start(1.8) # tiempo limite para volver a atacar
+				animations.attacks(AttackData.AttackType.FIRST_ATTACK) # genera la animacion del ataque
+				await get_tree().create_timer(0.8).timeout #espera un tiempo hardcodeado para afectar al enemigo
+				apply_damage(AttackData.AttackType.FIRST_ATTACK) # aplica el dano al enemigo en el momento exacto del contacto
 			AttackData.AttackType.SECOND_ATTACK:
-				$Settings/canAttackTimer.start(0.9)
-				$Settings/attackTimer.start(1.3)
-				animations.second_attack()
+				$Settings.use_attack_time(1.1, true)
+				$Settings/endAttackTimer.start(1.3)
+				animations.attacks(AttackData.AttackType.SECOND_ATTACK)
 				await get_tree().create_timer(0.4).timeout
 				apply_damage(AttackData.AttackType.SECOND_ATTACK)
 			AttackData.AttackType.THIRD_ATTACK:
-				$Settings/canAttackTimer.start(1.4)
-				$Settings/attackTimer.start(1.8)
-				animations.third_attack()
+				$Settings.use_attack_time(1.6, true)
+				$Settings/endAttackTimer.start(1.8)
+				animations.attacks(AttackData.AttackType.THIRD_ATTACK)
 				await get_tree().create_timer(0.38).timeout
 				apply_damage(AttackData.AttackType.THIRD_ATTACK)
 			AttackData.AttackType.AIR_ATTACK:
-				$Settings/canAttackTimer.start(0.8)
-				$Settings/attackTimer.start(1.2)
-				animations.air_attack()
+				$Settings.use_attack_time(1.0, true)
+				$Settings/endAttackTimer.start(1.2)
+				animations.attacks(AttackData.AttackType.AIR_ATTACK)
 				await get_tree().create_timer(0.48).timeout
 				apply_damage(AttackData.AttackType.AIR_ATTACK)
 			AttackData.AttackType.PUNCH_UP:
-				$Settings/canAttackTimer.start(0.8)
-				$Settings/attackTimer.start(1.2)
-				animations.punch_up()
+				$Settings.use_attack_time(1.2, true)
+				$Settings/endAttackTimer.start(1.6)
+				animations.attacks(AttackData.AttackType.PUNCH_UP)
 				await get_tree().create_timer(0.6).timeout
 				apply_damage(AttackData.AttackType.PUNCH_UP)
 				

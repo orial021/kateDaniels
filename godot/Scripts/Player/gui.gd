@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 @export var player : Player
+@export var enemy : Enemy
 @onready var attack_time: TextureRect = $Control/attackTime
 var current_wave : Array = [
 	"MAGIC",
@@ -12,6 +13,8 @@ func _ready() -> void:
 	$Control/attackTime.visible = false
 	
 func _process(_delta: float) -> void:
+	if enemy:
+		$Control/MarginContainer/Label.text = str(enemy.player_detected)
 	%HPBar.max_value = STATS.derived_stats["max_hp"]
 	%HPBar.value = GLOBAL.health
 	%HPLabel.text = str(GLOBAL.health) + "/" + str(STATS.derived_stats["max_hp"])
@@ -29,6 +32,10 @@ func _input(event: InputEvent) -> void:
 			$Control/stats.hide()
 		else:
 			$Control/stats.show()
+	if event.is_action_pressed("ui_r"):
+		$Control/instructions.visible = !$Control/instructions.visible
+	if event.is_action_pressed("ui_quit"):
+		get_tree().quit()
 		
 func attackTime() -> void:
 	if player.target != null:
@@ -37,7 +44,13 @@ func attackTime() -> void:
 		await get_tree().create_timer(0.4).timeout
 		Engine.set_time_scale(1.0)
 		$Control/attackTime.visible = false
-
+	else:
+		$Control/attackTime.visible = true
+		Engine.set_time_scale(0.3)
+		await get_tree().create_timer(0.4).timeout
+		Engine.set_time_scale(1.0)
+		$Control/attackTime.visible = false
+		
 func update_stats() -> void:
 	# Daño
 	%phyDamage.text = "⚔️ Daño físico: " + format_range(STATS.derived_stats["physical_damage"])
@@ -68,3 +81,6 @@ func _on_stats_pressed() -> void:
 		$Control/stats.hide()
 	else:
 		$Control/stats.show()
+
+func _on_attack_instruction_pressed() -> void:
+	$Control/instructions.visible = !$Control/instructions.visible

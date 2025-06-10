@@ -3,6 +3,7 @@ extends Node
 @onready var player : Player = get_parent()
 @onready var animations: AnimationTree = $"../AnimationTree"
 var gui : CanvasLayer
+var attack_time : bool = true
 var stamina_regen_multipliers := [
 	1,
 	2
@@ -11,17 +12,23 @@ var stamina_regen_multipliers := [
 func _ready() -> void:
 	gui = player.gui
 
-func _on_can_attack_timer_timeout() -> void:
-	gui.attackTime()
-	player.can_attack = true
+func use_attack_time(time: float, use : bool = true) -> void:
+	attack_time = use
+	$canAttackTimer.start(time)
 	
-func _on_attack_timer_timeout() -> void:
+func _on_can_attack_timer_timeout() -> void: # activa el ralentizado y permite volver a atacar
+	if attack_time:
+		gui.attackTime()
+	player.can_attack = true
+	attack_time = true
+	
+func _on_end_attack_timer_timeout() -> void: # fin de los combos
 	player.last_attack = AttackData.AttackType.NULL
 	player.attack_on_time = false
 	$attackModeTimer.start()
 	animations.attack_idle()
 
-func _on_attack_mode_timer_timeout() -> void:
+func _on_attack_mode_timer_timeout() -> void: # fin del modo de ataque
 	player.attack_mode = false
 	$SPTimer.start()
 	animations.idle()

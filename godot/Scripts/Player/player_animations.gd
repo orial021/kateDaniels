@@ -32,17 +32,18 @@ func run_left() -> void:
 func walk_back() -> void:
 	_state_machine.travel(ANIMS.WALK_BACK)
 	
-func first_attack() -> void:
-	_state_machine.travel(ANIMS.FIRST_ATTACK)
-		
-func second_attack() -> void:
-	_state_machine.travel(ANIMS.SECOND_ATTACK)
-	
-func third_attack() -> void:
-	_state_machine.travel(ANIMS.THIRD_ATTACK)
-	
-func punch_up() ->void:
-	_state_machine.travel(ANIMS.PUNCH_UP)
+func attacks(attackType: AttackData.AttackType) -> void:
+	match attackType:
+		AttackData.AttackType.FIRST_ATTACK:
+			_state_machine.travel(ANIMS.FIRST_ATTACK)
+		AttackData.AttackType.SECOND_ATTACK:
+			_state_machine.travel(ANIMS.SECOND_ATTACK)
+		AttackData.AttackType.THIRD_ATTACK:
+			_state_machine.travel(ANIMS.THIRD_ATTACK)
+		AttackData.AttackType.AIR_ATTACK:
+			_state_machine.travel(ANIMS.AIR_ATTACK)
+		AttackData.AttackType.PUNCH_UP:
+			_state_machine.travel(ANIMS.PUNCH_UP)
 	
 func walk() -> void:
 	if not player.is_unsheathed:
@@ -56,9 +57,6 @@ func jump() -> void:
 	
 func jump_start() -> void:
 	_state_machine.travel(ANIMS.JUMP_START)
-	
-func air_attack() -> void:
-	_state_machine.travel(ANIMS.AIR_ATTACK)
 	
 func jump_land() -> void:
 	_state_machine.travel(ANIMS.JUMP_LAND)
@@ -158,15 +156,12 @@ func state_machine() -> void:
 				run_left()
 			if GLOBAL.get_axis().y < 0:
 				walk_back()
-			if Input.is_action_just_pressed("ui_shot"):
-				first_attack()
 				
 		ANIMS.JUMP_START:
 			current_animation_state = ANIMS.JUMP_START
 			if player.velocity.y <= -5:
 				jump_land()
 			
-
 func _on_animation_tree_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
 		ANIMS.CHEER:
