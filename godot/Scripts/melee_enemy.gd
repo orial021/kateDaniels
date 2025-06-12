@@ -122,12 +122,10 @@ func _set_state(new_state: int) -> void:
 func handle_movement(delta : float) -> void:
 	var direction := (player.global_position - global_position).normalized()
 	if player_detected:
-		rotate_towards_player(direction, delta)
 		if velocity.length() > 0.1:
-			
+			rotate_towards_player(direction, delta)
 		if current_state == STATES.CHASING:
-			if can_move:
-				velocity = direction * move_speed * delta
+			velocity = direction * move_speed * delta
 			
 func rotate_towards_player(direction: Vector3, delta: float) -> void:
 	var target_angle = atan2(direction.x, direction.z)
@@ -140,19 +138,17 @@ func update_health_display() -> void:
 func damage_ctrl(damage_info : Dictionary) -> void:
 	if current_state == STATES.LAUNCHED:
 		launched(0.6)
-	var final_damage = stats.calculate_damage(
-		damage_info.damage,
-		damage_info.is_physical,
-		damage_info.is_critical,
-		)
+	var final_damage = stats.calculate_damage(damage_info.damage, damage_info.is_physical, damage_info.is_critical)
 	received_effect = [
 		damage_info.effect,
 		damage_info.value_effect
 	]
+	
 	_set_state(STATES.HURT)
 	apply_effect(received_effect)
-	health -= final_damage
-	display_damage(final_damage, damage_info.is_critical, damage_info.is_physical)
+	
+	health -= final_damage.damage
+	display_damage(final_damage.damage, final_damage.critical, damage_info.is_physical, final_damage.dodged, final_damage.blocked)
 	if health <= 0:
 		_set_state(STATES.DEAD)
 		
@@ -163,16 +159,21 @@ func apply_effect(effects : Array) -> void:
 			if randf() <= 1: #TEST
 				launched(1.0)
 
-func display_damage(amount: float, is_critical: bool, is_physical: bool) -> void:
+func display_damage(amount: float, is_critical: bool, is_physical: bool, dodged : bool, blocked : bool) -> void:
 	var this_position = global_position + Vector3(0, 3.5, 0)
 	$damageLabel.global_position = this_position
-	$damageLabel.text = str(int(amount))
 	if not is_physical:
 		$damageLabel.modulate = Color.BLUE
 	else:
 		$damageLabel.modulate = Color.WHITE
+	if dodged:
+		$damageLabel.text = "ESQUIVADO"
 	if is_critical:
 		$damageLabel.modulate = Color.RED
+	if blocked:
+		$damageLabel.text = "BLOQUEADO\n" + str(int(amount))
+	else:
+		$damageLabel.text = str(int(amount))
 	$damageLabel.scale = Vector3(1.0, 1.0, 1) if is_critical else Vector3(0.5, 0.5, 1)
 	$damageLabel.show()
 	var new_scale = Vector3(1.5, 1.5, 1.0) if is_critical else Vector3(1.0, 1.0, 1)
@@ -181,6 +182,7 @@ func display_damage(amount: float, is_critical: bool, is_physical: bool) -> void
 	tween.tween_property($damageLabel, "global_position", Vector3(this_position.x, (this_position.y + 0.3), this_position.z), 0.7)
 	tween.parallel().tween_property($damageLabel, "scale", new_scale, 0.7)
 	tween.tween_property($damageLabel, "modulate", Color.TRANSPARENT, 0.3)
+	tween.parallel().tween_property($damageLabel, "outline_modulate", Color.TRANSPARENT, 0.3)
 	tween.tween_callback($damageLabel.hide)
 	
 func launched(power : float) -> void:
