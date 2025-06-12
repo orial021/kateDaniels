@@ -8,6 +8,10 @@ var stamina_regen_multipliers := [
 	1,
 	2
 ]
+var mana_regen_multipliers := [
+	2,
+	1
+]
 
 func _ready() -> void:
 	gui = player.gui
@@ -35,9 +39,9 @@ func _on_attack_mode_timer_timeout() -> void: # fin del modo de ataque
 
 func _on_sp_timer_timeout() -> void:
 	if not player.attack_mode:
-		if GLOBAL.stamina < STATS.derived_stats["max_sp"]:
-			GLOBAL.stamina += STATS.derived_stats["max_sp"]/100 * stamina_regen_multipliers[GLOBAL.current_wave]
-		else:
-			$SPTimer.stop()
+		if GLOBAL.stamina < STATS.derived_stats.max_sp:
+			GLOBAL.stamina += STATS.derived_stats.max_sp/100 * stamina_regen_multipliers[GLOBAL.current_wave]
+		if GLOBAL.mana < STATS.derived_stats.max_mp:
+			GLOBAL.mana += (STATS.derived_stats.max_mp * mana_regen_multipliers[GLOBAL.current_wave])/50
 	else:
 		$SPTimer.stop()

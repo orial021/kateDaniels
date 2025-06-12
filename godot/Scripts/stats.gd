@@ -1,6 +1,5 @@
 extends Node
 class_name StatsSystem
-
 # === STATS BASE ===
 enum PrimaryStats {
 	STRENGTH,       # Fuerza (Daño físico/HP)							peso equipamiento
@@ -13,12 +12,12 @@ enum PrimaryStats {
 
 # Diccionario de stats base (puntos asignables)
 var base_stats := {
-	PrimaryStats.STRENGTH: 5,
-	PrimaryStats.DEXTERITY: 5,
-	PrimaryStats.INTELLIGENCE: 5,
-	PrimaryStats.ENDURANCE: 5,
-	PrimaryStats.WILLPOWER: 5,
-	PrimaryStats.AGILITY: 5
+	PrimaryStats.STRENGTH: 4 + GLOBAL.level,
+	PrimaryStats.DEXTERITY: 4 + GLOBAL.level,
+	PrimaryStats.INTELLIGENCE: 4 + GLOBAL.level,
+	PrimaryStats.ENDURANCE: 4 + GLOBAL.level,
+	PrimaryStats.WILLPOWER: 4 + GLOBAL.level,
+	PrimaryStats.AGILITY: 4 + GLOBAL.level
 }
 
 # === STATS DERIVADOS ===
@@ -30,7 +29,7 @@ var derived_stats := {
 	"attack_speed": 1.0,
 	"movement_speed": 300,
 	"max_hp": 100,
-	"max_mp": 50,
+	"max_mp": 50.0,
 	"max_sp": 100,
 	"critical_chance": 0.4,
 	"dodge_chance": 0.1

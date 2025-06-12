@@ -14,17 +14,17 @@ func _ready() -> void:
 	
 func _process(_delta: float) -> void:
 	if enemy:
-		$Control/MarginContainer/Label.text = str(enemy.player_detected)
+		$Control/MarginContainer/Debug.text = str(enemy.current_state)
 	%HPBar.max_value = STATS.derived_stats["max_hp"]
-	%HPBar.value = GLOBAL.health
-	%HPLabel.text = str(GLOBAL.health) + "/" + str(STATS.derived_stats["max_hp"])
+	%HPBar.value = int(GLOBAL.health)
+	%HPLabel.text = str(int(GLOBAL.health)) + "/" + str(STATS.derived_stats["max_hp"])
 	%SPBar.max_value = STATS.derived_stats["max_sp"]
-	%SPBar.value = GLOBAL.stamina
-	%SPLabel.text = str(GLOBAL.stamina) + "/" + str(STATS.derived_stats["max_sp"])
+	%SPBar.value = int(GLOBAL.stamina)
+	%SPLabel.text = str(int(GLOBAL.stamina)) + "/" + str(STATS.derived_stats["max_sp"])
 	%Wave.text = "WAVE:   " + current_wave[GLOBAL.current_wave]
 	%MPBar.max_value = STATS.derived_stats["max_mp"]
-	%MPBar.value = GLOBAL.mana
-	%MPLabel.text = str(GLOBAL.mana) + "/" + str(STATS.derived_stats["max_mp"])
+	%MPBar.value = int(GLOBAL.mana)
+	%MPLabel.text = str(int(GLOBAL.mana)) + "/" + str(STATS.derived_stats["max_mp"])
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_stats"):

@@ -61,14 +61,26 @@ enum AttackType {
 func get_damage(attack_type: AttackType) -> Dictionary:
 	var damage = STATS.get_random_physical_damage()
 	var skill = attacks_config.get(attack_type, {})
-	damage *= skill.get("base_damage_percent", 1.0)
-	var is_physical = skill.get("physical")
+	damage *= skill.base_damage_percent
+	var is_physical = skill.physical
 	var is_crit = false
 	if skill.get("can_crit", false) and randf() <= STATS.derived_stats.critical_chance:
 		damage *= 1.5 # 50% extra de dano
 		is_crit = true
-	var effect = skill.get("effect")
-	var value_effect = skill.get("value_effect")
+	var effect = skill.effect
+	var value_effect = skill.value_effect
+	if GLOBAL.current_wave == GLOBAL.WaveType.MAGIC:
+		if not is_physical: #potenciado por la magia
+			damage *= 1.5
+		else:
+			damage *= 0.8
+			
+	if GLOBAL.current_wave == GLOBAL.WaveType.TECH:
+		if is_physical: # potenciado por la tecnologia
+			damage *= 1.5
+		else:
+			damage *= 0.8
+			
 	var damage_info = {
 		"damage": damage,
 		"is_physical": is_physical,
@@ -81,8 +93,16 @@ func get_damage(attack_type: AttackType) -> Dictionary:
 func get_animation(attack_type: AttackType) -> String:
 	return attacks_config.get(attack_type, {}).get("animation", "")
 
-func get_cost(attack_type: AttackType) -> int:
-	return attacks_config.get(attack_type, {}).get("sp_cost", 0)
+func get_cost(attack_type: AttackType) -> bool:
+	var skill = attacks_config.get(attack_type, {})
+	var is_physical = skill.physical
+	if not is_physical and GLOBAL.mana >= skill.sp_cost:
+		GLOBAL.mana -= skill.sp_cost
+		return true
+	if is_physical and GLOBAL.stamina >= skill.sp_cost:
+		GLOBAL.stamina -= skill.sp_cost
+		return true
+	return false
 
 func get_type(attack_type: AttackType) -> bool:
 	return attacks_config.get(attack_type, {}).get("physical", false)

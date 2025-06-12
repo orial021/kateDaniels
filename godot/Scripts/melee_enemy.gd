@@ -6,6 +6,19 @@ class_name Enemy
 @export var player: Player
 @export var move_speed : int
 @export var rotation_speed := 10.0
+@export var current_state : int = STATES.WAITING
+@export var previous_state : int = STATES.WAITING
+enum STATES {
+	WAITING,
+	IDLE,
+	CHASING,
+	COMBATING,
+	ATTACKING,
+	LAUNCHED,
+	HURT,
+	LIED,
+	DEAD
+}
 
 var gravity = GLOBAL.gravity
 var health : int
@@ -14,6 +27,7 @@ var can_move := false
 var is_dead := false
 var is_launched := false
 var received_effect := []
+var animation_current : String
 
 func _ready() -> void:
 	if stats:
@@ -25,24 +39,95 @@ func _process(_delta: float) -> void:
 	update_health_display()
 	
 func _physics_process(delta):
+	animation_current = $AnimationPlayer.current_animation
 	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
-	if is_dead:
-		return
-	if is_on_floor() and can_move:
-		if is_launched:
-			is_launched = false
-		handle_movement(delta)
+	if is_on_floor():
+		
+		if current_state == STATES.CHASING:
+			handle_movement(delta)
 	move_and_slide()
 	
+func _set_state(new_state: int) -> void:
+	if new_state == current_state:
+		return
+	if current_state == STATES.DEAD:
+		return
+		
+	# lógica de salida del estado actual
+	match current_state:
+		STATES.WAITING:
+			$AnimationPlayer.play("Skeletons_Awaken_Floor")
+			player_detected = true
+			
+		STATES.CHASING:
+			pass
+			
+		STATES.COMBATING:
+			pass
+			
+		STATES.ATTACKING:
+			pass
+			
+		STATES.LAUNCHED:
+			is_launched = false
+			
+		STATES.HURT:
+			can_move = true
+			
+		STATES.LIED:
+			pass
+			
+	previous_state = current_state
+	current_state = new_state
+
+	match new_state:
+		STATES.WAITING:
+			$AnimationPlayer.play("Skeletons_Inactive_Floor_Pose")
+			
+		STATES.IDLE:
+			pass
+			
+		STATES.CHASING:
+			$AnimationPlayer.play("Walking_D_Skeletons")
+			can_move = true
+			
+		STATES.COMBATING:
+			velocity.x = 0
+			velocity.z = 0
+			can_move = false
+			$AnimationPlayer.play("Idle_Combat")
+			
+		STATES.ATTACKING:
+			$AnimationPlayer.play("Unarmed_Melee_Attack_Punch_A")
+			
+		STATES.LAUNCHED:
+			is_launched = true
+			$AnimationPlayer.play("Lie_Pose")
+			
+		STATES.HURT:
+			can_move = false
+			$AnimationPlayer.play("Hit_B")
+			
+		STATES.LIED:
+			$AnimationPlayer.play("Lie_Pose")
+			
+		STATES.DEAD:
+			$AnimationPlayer.play_backwards("Skeletons_Awaken_Floor")
+			is_dead = true
+			can_move = false
+			velocity.y = 0
+			$CollisionShape3D.set_deferred("disabled", true)
+			set_physics_process(false)
+			
 func handle_movement(delta : float) -> void:
 	var direction := (player.global_position - global_position).normalized()
-	if can_move or player or !is_launched:
+	if player_detected:
+		rotate_towards_player(direction, delta)
 		if velocity.length() > 0.1:
-			rotate_towards_player(direction, delta)
-		if !player_detected:
-			return
-		else:
-			velocity = direction * move_speed * delta
+			
+		if current_state == STATES.CHASING:
+			if can_move:
+				velocity = direction * move_speed * delta
 			
 func rotate_towards_player(direction: Vector3, delta: float) -> void:
 	var target_angle = atan2(direction.x, direction.z)
@@ -53,47 +138,41 @@ func update_health_display() -> void:
 	$SubViewport/ProgressBar.value = health
 	
 func damage_ctrl(damage_info : Dictionary) -> void:
-	if is_dead:
-		return
-	if not is_on_floor():
-		velocity.y = 5
+	if current_state == STATES.LAUNCHED:
+		launched(0.6)
 	var final_damage = stats.calculate_damage(
-		damage_info["damage"],
-		damage_info["is_physical"],
-		damage_info["is_critical"],
+		damage_info.damage,
+		damage_info.is_physical,
+		damage_info.is_critical,
 		)
 	received_effect = [
 		damage_info.effect,
 		damage_info.value_effect
 	]
+	_set_state(STATES.HURT)
 	apply_effect(received_effect)
 	health -= final_damage
-	display_damage(final_damage, damage_info.is_critical)
-	$AnimationPlayer.play("Hit_B")
+	display_damage(final_damage, damage_info.is_critical, damage_info.is_physical)
 	if health <= 0:
-		die()
+		_set_state(STATES.DEAD)
 		
 func apply_effect(effects : Array) -> void:
 	match effects[0]:
 		"launch":
-			if randf() <= effects[1]:
-			#if randf() <= 1:
-				is_launched = true
-				velocity.y = 8
-				$AnimationPlayer.play("Hit_B", -1, 0.1)
-	
-func die() -> void:
-	is_dead = true
-	can_move = false
-	velocity.y = 0
-	$AnimationPlayer.play_backwards("Skeletons_Awaken_Floor")
-	$CollisionShape3D.set_deferred("disabled", true)
+			#if randf() <= effects[1]:
+			if randf() <= 1: #TEST
+				launched(1.0)
 
-func display_damage(amount: float, is_critical: bool) -> void:
+func display_damage(amount: float, is_critical: bool, is_physical: bool) -> void:
 	var this_position = global_position + Vector3(0, 3.5, 0)
 	$damageLabel.global_position = this_position
 	$damageLabel.text = str(int(amount))
-	$damageLabel.modulate = Color.RED if is_critical else Color.WHITE
+	if not is_physical:
+		$damageLabel.modulate = Color.BLUE
+	else:
+		$damageLabel.modulate = Color.WHITE
+	if is_critical:
+		$damageLabel.modulate = Color.RED
 	$damageLabel.scale = Vector3(1.0, 1.0, 1) if is_critical else Vector3(0.5, 0.5, 1)
 	$damageLabel.show()
 	var new_scale = Vector3(1.5, 1.5, 1.0) if is_critical else Vector3(1.0, 1.0, 1)
@@ -104,49 +183,37 @@ func display_damage(amount: float, is_critical: bool) -> void:
 	tween.tween_property($damageLabel, "modulate", Color.TRANSPARENT, 0.3)
 	tween.tween_callback($damageLabel.hide)
 	
-func _on_animation_player_animation_started(anim_name: StringName) -> void:
-	match anim_name:
-		"Hit_B":
-			can_move = false
+func launched(power : float) -> void:
+	_set_state(STATES.LAUNCHED)
+	#$AnimationPlayer.play("Hit_B", -1, 0.1)
+	velocity.y = 8 * power
+	
 	
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
 		"Skeletons_Awaken_Floor":
-			if is_dead:
-				$AnimationPlayer.play("Skeletons_Inactive_Floor_Pose")
-			else:
-				$AnimationPlayer.play("Walking_D_Skeletons")
-				can_move = true
-		"Hit_B":
 			if not is_dead:
-				$AnimationPlayer.play("Idle_Combat")
-				can_move = true
+				_set_state(STATES.CHASING)
+		"Hit_B":
+			if not is_launched:
+				_set_state(STATES.COMBATING)
 
 func _on_area_detection_body_entered(body: Node3D) -> void:
 	if body is Player and not is_dead:
 		if not player_detected:
-			$AnimationPlayer.play("Skeletons_Awaken_Floor")
-			player_detected = true
+			_set_state(STATES.IDLE)
 		else:
-			$AnimationPlayer.play("Walking_D_Skeletons")
-			can_move = true
+			_set_state(STATES.CHASING)
+			
 	
 func _on_area_detection_body_exited(body: Node3D) -> void:
 	if body is Player and not is_dead:
-		$AnimationPlayer.play("Idle_Combat")
-		velocity.x = 0
-		velocity.z = 0
-		can_move = false
+		_set_state(STATES.COMBATING)
 		
 func _on_area_target_body_entered(body: Node3D) -> void:
-	if body is Player and not is_dead:
-		velocity.x = 0
-		velocity.z = 0
-		can_move = false
-		$AnimationPlayer.play("Idle_Combat")
+	if body is Player:
+		_set_state(STATES.COMBATING)
 
 func _on_area_target_body_exited(body: Node3D) -> void:
-	if body is Player and not is_dead and is_on_floor():
-		print("esta adentro")
-		can_move = true
-		$AnimationPlayer.play("Walking_D_Skeletons")
+	if body is Player and is_on_floor():
+		_set_state(STATES.CHASING)

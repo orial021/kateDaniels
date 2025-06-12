@@ -26,7 +26,7 @@ class_name EnemyStats extends Resource
 # Método para calcular el daño recibido
 func calculate_damage(incoming_damage: float, is_physical: bool, is_critical: bool) -> float:
 	var defense = physical_defense if is_physical else magic_defense
-	var base_reduction = defense * 0.1  # Cada punto de defensa reduce 10% del daño
+	var base_reduction = defense * 0.1  # Cada punto de defensa reduce 10% del daño, considera el tipo de daño
 	
 	# Probabilidades de defensa
 	if randf() <= dodge_chance:

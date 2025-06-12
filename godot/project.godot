@@ -25,7 +25,6 @@ STATS="*res://Scripts/stats.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/mode=4
 
 [input]
 

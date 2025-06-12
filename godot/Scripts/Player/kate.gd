@@ -2,6 +2,7 @@ extends CharacterBody3D
 class_name Player
 
 @export_category("Combat Settings")
+@export var stats : StatsSystem = StatsSystem.new()
 @export var mov_speed : float = STATS.derived_stats["movement_speed"]
 #@export var sheathed_speed := 120.0
 @export var mouse_sensitivity := 0.05
@@ -83,11 +84,13 @@ func handle_weapon_togle(event: InputEvent) -> void:
 			
 func handle_attack_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_shot") and is_unsheathed and can_attack:
+		$Settings/attackModeTimer.stop()
 		var next_attack = get_next_attack_type()
 		if next_attack != AttackData.AttackType.NULL:
 			execute_attack(next_attack)
 			
-	if event.is_action_pressed("ui_punch") and can_attack:
+	if event.is_action_pressed("ui_punch") and can_attack and is_on_floor():
+		$Settings/attackModeTimer.stop()
 		execute_attack(AttackData.AttackType.PUNCH_UP)
 		
 func get_next_attack_type() -> AttackData.AttackType:
@@ -107,7 +110,7 @@ func get_next_attack_type() -> AttackData.AttackType:
 			return AttackData.AttackType.FIRST_ATTACK
 			
 func execute_attack(attack_type: AttackData.AttackType) -> void:
-	if GLOBAL.stamina - attack_data.get_cost(attack_type) >= 0:
+	if attack_data.get_cost(attack_type):
 		last_attack = attack_type
 		attack_on_time = true
 		attack_mode = true
@@ -148,7 +151,6 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 				
 	
 func apply_damage(attack_type : AttackData.AttackType) -> void:
-	GLOBAL.stamina -= attack_data.get_cost(attack_type)
 	if target and !target.is_dead:
 		target.damage_ctrl(attack_data.get_damage(attack_type))
 		
