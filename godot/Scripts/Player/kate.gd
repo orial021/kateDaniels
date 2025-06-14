@@ -1,13 +1,12 @@
 extends CharacterBody3D
-class_name Player
+class_name Player1
 
 @export_category("Combat Settings")
 @export var stats : StatsSystem = StatsSystem.new()
 @export var mov_speed : float = STATS.derived_stats["movement_speed"]
-#@export var sheathed_speed := 120.0
 @export var mouse_sensitivity := 0.05
 @export var jump_force := 7.0
-#@export var attack_cooldown := 0.2
+#@export var attack_cooldown := 0.2 # TODO
 @export_category("references")
 @export var gui: CanvasLayer
 const JUMP_FORCE = 7
@@ -32,7 +31,6 @@ var attack_mode : bool = true
 var attack_on_time : bool = false
 var last_attack : AttackData.AttackType = AttackData.AttackType.NULL
 var target : Enemy
-
 
 func _ready() -> void:
 	$AnimationTree.active = true
@@ -152,8 +150,28 @@ func execute_attack(attack_type: AttackData.AttackType) -> void:
 	
 func apply_damage(attack_type : AttackData.AttackType) -> void:
 	if target and !target.is_dead:
-		target.damage_ctrl(attack_data.get_damage(attack_type))
+		var kill = target.damage_ctrl(attack_data.get_damage(attack_type))
+		if kill:
+			get_a_kill()
+			
+func get_a_kill() -> void:
+	await get_tree().create_timer(3.0).timeout
+	GLOBAL.current_experience += 8
+	if GLOBAL.current_experience >= GLOBAL.next_level_experience:
+		level_up()
 		
+func level_up():
+	$GPUParticles3D.emitting = true
+	GLOBAL.current_experience -= GLOBAL.next_level_experience
+	GLOBAL.level += 1
+	GLOBAL.next_level_experience = int(GLOBAL.next_level_experience * 1.5)
+	STATS.update_base_stats()
+	gui.update_stats()
+	GLOBAL.health = STATS.derived_stats["max_hp"]
+	GLOBAL.stamina = STATS.derived_stats["max_sp"]
+	GLOBAL.mana = STATS.derived_stats["max_mp"]
+	gui.level_up()
+	
 func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		HEAD.rotation_degrees.x -= event.relative.y * -mouse_sensitivity

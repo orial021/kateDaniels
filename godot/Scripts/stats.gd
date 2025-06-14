@@ -39,8 +39,20 @@ var derived_stats := {
 func _ready():
 	update_derived_stats()
 
+func update_base_stats():
+	print("base stats updated")
+	base_stats = {
+	PrimaryStats.STRENGTH: 4 + GLOBAL.level,
+	PrimaryStats.DEXTERITY: 4 + GLOBAL.level,
+	PrimaryStats.INTELLIGENCE: 4 + GLOBAL.level,
+	PrimaryStats.ENDURANCE: 4 + GLOBAL.level,
+	PrimaryStats.WILLPOWER: 4 + GLOBAL.level,
+	PrimaryStats.AGILITY: 4 + GLOBAL.level
+}
+	update_derived_stats()
 # === CÁLCULOS AUTOMÁTICOS ===
 func update_derived_stats():
+	print("derived stats updated")
 	# FÍSICO
 	derived_stats.physical_damage.min = base_stats[PrimaryStats.STRENGTH] * 2
 	derived_stats.physical_damage.max = base_stats[PrimaryStats.STRENGTH] * 3

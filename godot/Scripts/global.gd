@@ -7,8 +7,15 @@ var level : int = 1
 var health : float
 var stamina : float
 var mana : float
-enum WaveType {MAGIC, TECH}
+var current_experience : int = 0
+var next_level_experience : int = 20
 var current_wave: WaveType = WaveType.TECH
+enum WaveType {MAGIC, TECH}
+enum TYPE {
+	PHYSICAL,
+	MAGICAL,
+	HYBRID
+}
 
 func get_axis() -> Vector2:
 	axis.x = int(Input.is_action_pressed("ui_right")) - int(Input.is_action_pressed("ui_left"))

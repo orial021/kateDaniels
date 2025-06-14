@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://b0hr5mkjm4xbn" path="res://Scripts/world.gd" id="1_5ukr8"]
 [ext_resource type="Texture2D" uid="uid://b7b834apmqq1v" path="res://Assets/SphereBox/kloofendal_48d_partly_cloudy_puresky_4k.exr" id="1_fo5ed"]
 [ext_resource type="PackedScene" uid="uid://dmr1tmby38n88" path="res://Scenes/Atlanta.tscn" id="1_go701"]
-[ext_resource type="PackedScene" uid="uid://dpbmvrb0214w" path="res://Scenes/kate.tscn" id="2_5a7ea"]
 [ext_resource type="PackedScene" uid="uid://d4e1mvpis5xl1" path="res://Scenes/melee_enemy.tscn" id="3_5a7ea"]
+[ext_resource type="PackedScene" uid="uid://c4xj8qgygp5jt" path="res://Scenes/jjOng.tscn" id="3_5ukr8"]
 [ext_resource type="PackedScene" uid="uid://de3r7yeiilc51" path="res://Scenes/gui.tscn" id="4_8j60k"]
 
 [sub_resource type="Gradient" id="Gradient_5ukr8"]
@@ -41,35 +41,57 @@ script = ExtResource("1_5ukr8")
 
 [node name="Atlanta" parent="." instance=ExtResource("1_go701")]
 
-[node name="kate" parent="." node_paths=PackedStringArray("gui") instance=ExtResource("2_5a7ea")]
-transform = Transform3D(0.465723, 0, -0.884931, 0, 1, 0, 0.884931, 0, 0.465723, 67.9555, 3.81407, 57.2467)
-platform_floor_layers = 4294901764
-gui = NodePath("../GUI")
+[node name="Kate2" parent="." instance=ExtResource("3_5ukr8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.4515, 3.28245, 63.5007)
 
-[node name="FogVolume" type="FogVolume" parent="kate"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.04468, 4.53857, 6.31412)
+[node name="FogVolume" type="FogVolume" parent="Kate2"]
+transform = Transform3D(0.465723, 0, -0.884931, 0, 1, 0, 0.884931, 0, 0.465723, 63.7859, 8.35264, 62.8817)
 size = Vector3(30, 11, 30)
 material = SubResource("FogMaterial_k7acu")
 
-[node name="FogVolume2" type="FogVolume" parent="kate"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55348, -1.42627)
+[node name="FogVolume2" type="FogVolume" parent="Kate2"]
+transform = Transform3D(0.465723, 0, -0.884931, 0, 1, 0, 0.884931, 0, 0.465723, 69.2177, 5.36755, 56.5825)
 size = Vector3(2, 3.30829, 4.85254)
 material = SubResource("FogMaterial_5v1tr")
 
 [node name="meleeEnemy" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.59801, 3.4732, 41.3811)
-player = NodePath("../kate")
+player = NodePath("../Kate2")
 
 [node name="meleeEnemy2" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.997, 3.4732, 56.7488)
-player = NodePath("../kate")
+player = NodePath("../Kate2")
 
 [node name="meleeEnemy3" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 43.0952, 3.0414, 69.018)
-player = NodePath("../kate")
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy4" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.6949, 3.0414, 88.9368)
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy5" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.8934, 3.0414, 88.8933)
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy6" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.0083, 3.0414, 108.502)
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy7" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.2493, 3.0414, 89.3565)
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy8" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.7456, 3.0414, 112.043)
+player = NodePath("../Kate2")
+
+[node name="meleeEnemy9" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_5a7ea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5198, 3.0414, 108.877)
+player = NodePath("../Kate2")
 
 [node name="GUI" parent="." node_paths=PackedStringArray("player", "enemy") instance=ExtResource("4_8j60k")]
-player = NodePath("../kate")
+player = NodePath("../Kate2")
 enemy = NodePath("../meleeEnemy3")
 
 [node name="Settings" type="Node" parent="."]

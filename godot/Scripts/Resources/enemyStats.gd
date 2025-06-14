@@ -24,9 +24,17 @@ class_name EnemyStats extends Resource
 @export_range(0.0, 1.0) var bleed_resistance: float = 0.0
 
 # Método para calcular el daño recibido
-func calculate_damage(incoming_damage: float, is_physical: bool, is_critical: bool) -> Dictionary:
-	var defense = physical_defense if is_physical else magic_defense
-	var base_reduction = defense * 0.1  # Cada punto de defensa reduce 10% del daño, considera el tipo de daño
+func calculate_damage(incoming_damage: float, nature: GLOBAL.TYPE, is_critical: bool) -> Dictionary:
+	var defense : int
+	match nature:
+		GLOBAL.TYPE.PHYSICAL:
+			defense = physical_defense
+		GLOBAL.TYPE.MAGICAL:
+			defense = magic_defense
+		GLOBAL.TYPE.HYBRID:
+			pass
+			
+	var base_reduction = defense * 0.1  # Cada punto de defensa reduce 10% del daño en funcion del tipo de daño
 	var damage : float = 0.0
 	var dodged : bool = false
 	var blocked : bool = false

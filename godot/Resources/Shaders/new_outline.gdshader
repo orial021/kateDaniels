@@ -45,7 +45,7 @@ void fragment() {
 
 	float norm_edge_x = 0.0;
 	float norm_edge_y = 0.0;
- 
+
 	for (int i = 0; i < 8; i++) {
 		vec2 neighbor_uv = clamp(uv + offset[i] * texel, vec2(0.0), vec2(1.0));
 

@@ -8,6 +8,8 @@ class_name Enemy
 @export var rotation_speed := 10.0
 @export var current_state : int = STATES.WAITING
 @export var previous_state : int = STATES.WAITING
+@export var level: int = 1
+@export var nature : GLOBAL.TYPE = GLOBAL.TYPE.PHYSICAL
 enum STATES {
 	WAITING,
 	IDLE,
@@ -34,6 +36,13 @@ func _ready() -> void:
 		$SubViewport/ProgressBar.max_value = stats.max_health
 		health = stats.max_health
 		move_speed = stats.move_speed
+	match nature:
+		GLOBAL.TYPE.PHYSICAL:
+			$SubViewport/ProgressBar.modulate = Color.RED
+		GLOBAL.TYPE.MAGICAL:
+			$SubViewport/ProgressBar.modulate = Color.BLUE
+		GLOBAL.TYPE.HYBRID:
+			$SubViewport/ProgressBar.modulate = Color.BLUE_VIOLET
 	
 func _process(_delta: float) -> void:
 	update_health_display()
@@ -42,7 +51,6 @@ func _physics_process(delta):
 	animation_current = $AnimationPlayer.current_animation
 	velocity.y -= get_physics_process_delta_time() * GLOBAL.gravity
 	if is_on_floor():
-		
 		if current_state == STATES.CHASING:
 			handle_movement(delta)
 	move_and_slide()
@@ -112,6 +120,7 @@ func _set_state(new_state: int) -> void:
 			$AnimationPlayer.play("Lie_Pose")
 			
 		STATES.DEAD:
+			$GPUParticles3D.emitting = true
 			$AnimationPlayer.play_backwards("Skeletons_Awaken_Floor")
 			is_dead = true
 			can_move = false
@@ -132,13 +141,13 @@ func rotate_towards_player(direction: Vector3, delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
 	
 func update_health_display() -> void:
-	$Label3D.text = "LIFE: " + str(health)
+	$Label3D.text = "LVL " + str(level) + "\nLIFE: " + str(health)
 	$SubViewport/ProgressBar.value = health
 	
-func damage_ctrl(damage_info : Dictionary) -> void:
+func damage_ctrl(damage_info : Dictionary) -> bool:
 	if current_state == STATES.LAUNCHED:
 		launched(0.6)
-	var final_damage = stats.calculate_damage(damage_info.damage, damage_info.is_physical, damage_info.is_critical)
+	var final_damage = stats.calculate_damage(damage_info.damage, damage_info.attack_nature, damage_info.is_critical)
 	received_effect = [
 		damage_info.effect,
 		damage_info.value_effect
@@ -148,9 +157,10 @@ func damage_ctrl(damage_info : Dictionary) -> void:
 	apply_effect(received_effect)
 	
 	health -= final_damage.damage
-	display_damage(final_damage.damage, final_damage.critical, damage_info.is_physical, final_damage.dodged, final_damage.blocked)
+	display_damage(final_damage.damage, final_damage.critical, damage_info.attack_nature, final_damage.dodged, final_damage.blocked)
 	if health <= 0:
 		_set_state(STATES.DEAD)
+	return is_dead
 		
 func apply_effect(effects : Array) -> void:
 	match effects[0]:
@@ -159,13 +169,16 @@ func apply_effect(effects : Array) -> void:
 			if randf() <= 1: #TEST
 				launched(1.0)
 
-func display_damage(amount: float, is_critical: bool, is_physical: bool, dodged : bool, blocked : bool) -> void:
+func display_damage(amount: float, is_critical: bool, nature: GLOBAL.TYPE, dodged : bool, blocked : bool) -> void:
 	var this_position = global_position + Vector3(0, 3.5, 0)
 	$damageLabel.global_position = this_position
-	if not is_physical:
-		$damageLabel.modulate = Color.BLUE
-	else:
-		$damageLabel.modulate = Color.WHITE
+	match nature:
+		GLOBAL.TYPE.PHYSICAL:
+			$damageLabel.modulate = Color.WHITE
+		GLOBAL.TYPE.MAGICAL:
+			$damageLabel.modulate = Color.BLUE
+		GLOBAL.TYPE.HYBRID:
+			$damageLabel.modulate = Color.BLUE_VIOLET
 	if dodged:
 		$damageLabel.text = "ESQUIVADO"
 	if is_critical:

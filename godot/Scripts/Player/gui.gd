@@ -15,6 +15,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if enemy:
 		$Control/MarginContainer/Debug.text = str(enemy.current_state)
+	%level.text = "lvl " + str(GLOBAL.level)
 	%HPBar.max_value = STATS.derived_stats["max_hp"]
 	%HPBar.value = int(GLOBAL.health)
 	%HPLabel.text = str(int(GLOBAL.health)) + "/" + str(STATS.derived_stats["max_hp"])
@@ -25,6 +26,9 @@ func _process(_delta: float) -> void:
 	%MPBar.max_value = STATS.derived_stats["max_mp"]
 	%MPBar.value = int(GLOBAL.mana)
 	%MPLabel.text = str(int(GLOBAL.mana)) + "/" + str(STATS.derived_stats["max_mp"])
+	$Control/footer/expBar.value = GLOBAL.current_experience
+	$Control/footer/expBar.max_value = GLOBAL.next_level_experience
+	%expLabel.text = str(GLOBAL.current_experience) + "/" + str(GLOBAL.next_level_experience)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_stats"):
@@ -36,6 +40,10 @@ func _input(event: InputEvent) -> void:
 		$Control/instructions.visible = !$Control/instructions.visible
 	if event.is_action_pressed("ui_quit"):
 		get_tree().quit()
+	if event.is_action_pressed("ui_close"):
+		$Control/MarginContainer/levelUpPanel.hide()
+		$Control/instructions.hide()
+		$Control/stats.hide()
 		
 func attackTime() -> void:
 	if player.target != null:
@@ -76,6 +84,10 @@ func update_stats() -> void:
 func format_range(stat_range: Dictionary) -> String:
 	return "%d-%d" % [stat_range.min, stat_range.max]
 	
+func level_up() -> void:
+	$Control/MarginContainer/levelUpPanel/levelUpLabel.text = "LEVEL UP!\nlvl" + str(GLOBAL.level)
+	$Control/MarginContainer/levelUpPanel.show()
+	
 func _on_stats_pressed() -> void:
 	if $Control/stats.visible:
 		$Control/stats.hide()
@@ -84,3 +96,6 @@ func _on_stats_pressed() -> void:
 
 func _on_attack_instruction_pressed() -> void:
 	$Control/instructions.visible = !$Control/instructions.visible
+
+func _on_close_level_up_pressed() -> void:
+	$Control/MarginContainer/levelUpPanel.hide()

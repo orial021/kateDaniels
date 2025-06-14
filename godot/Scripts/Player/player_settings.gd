@@ -27,7 +27,7 @@ func _on_can_attack_timer_timeout() -> void: # activa el ralentizado y permite v
 	attack_time = true
 	
 func _on_end_attack_timer_timeout() -> void: # fin de los combos
-	player.last_attack = AttackData.AttackType.NULL
+	player.last_attack = AttackBData.AttackType.NULL
 	player.attack_on_time = false
 	$attackModeTimer.start()
 	animations.attack_idle()
